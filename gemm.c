@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:29:26
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 17:41:16
+ * @LastEditTime : 2022-01-16 01:04:32
  * @FilePath     : /sve/sve_gemm/gemm.c
  * @ToDo         :
  */
@@ -106,7 +106,7 @@ void my_dgemm_inside(const int M, const int N, const int K,
       // in register computation
       // C (mr(4) * nr(4)) = A (mr * kc) * B (kc  * nr) * alpha + beta * C;
 
-      add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], K, &alpha, &C(i, j), ldc, &beta);
+      add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
     }
   }
 }
@@ -129,14 +129,16 @@ void my_dgemm(const CBLAS_ORDER order,
       return;
     }
   }
-  int i, p, pb, ib;
-  for (p = 0; p < K; p += kc) {
-    pb = min(K - p, kc);
-    for (i = 0; i < M; i += mc) {
-      ib = min(M - i, mc);
-      // gebp Ablock(mc * kc) x Bpanel(kc * nc) but now the nc is N
-      // printf("i == %d\n", i);
-      my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
+  int i, p, pb, ib, jc;
+  //
+  // for (jc = 0; jc < N; jc += nc)
+    for (p = 0; p < K; p += kc) {
+      pb = min(K - p, kc);
+      for (i = 0; i < M; i += mc) {
+        ib = min(M - i, mc);
+        // gebp Ablock(mc * kc) x Bpanel(kc * nc) but now the nc is N
+        // printf("i == %d\n", i);
+        my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
+      }
     }
-  }
 }

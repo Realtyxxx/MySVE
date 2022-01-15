@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:04
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 15:22:33
+ * @LastEditTime : 2022-01-16 00:48:39
  * @FilePath     : /sve/sve_gemm/main.c
  * @ToDo         :
  */
@@ -28,19 +28,32 @@ double toc(void) {
 }
 
 int main(int argc, char **argv) {
-  bool P = false;
+  bool       P = false;
+  int        argM;
+  int        argN;
+  int        argK;
+  VALUE_TYPE alpha;
+  VALUE_TYPE beta;
   if (argc < 6) {
-    printf("USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n");
-    return -1;
+    printf(
+        "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
+            USE default ./main 4 4 4 1 0 1");
+    P     = true;
+    argM  = 4;
+    argN  = 4;
+    argK  = 4;
+    alpha = 1.0f;
+    beta  = 0;
+  } else {
+    if (argc == 7) {
+      P = true;
+    }
+    argM             = atoi(argv[1]);
+    argN             = atoi(argv[2]);
+    argK             = atoi(argv[3]);
+    VALUE_TYPE alpha = atof(argv[4]);
+    VALUE_TYPE beta  = atof(argv[5]);
   }
-  if (argc == 7) {
-    P = true;
-  }
-  int             argM        = atoi(argv[1]);
-  int             argN        = atoi(argv[2]);
-  int             argK        = atoi(argv[3]);
-  VALUE_TYPE      alpha       = atof(argv[4]);
-  VALUE_TYPE      beta        = atof(argv[5]);
   int             a_length    = argM * argK;
   int             b_length    = argK * argN;
   int             c_length    = argM * argN;
@@ -65,8 +78,8 @@ int main(int argc, char **argv) {
 
   /* print the  matrix before operation */
   if (P) {
-  printFloat(a, argM, argK, argM, "a  :");
-  printFloat(b, argK, argN, argK, "b  :");
+    printFloat(a, argM, argK, argM, "a  :");
+    printFloat(b, argK, argN, argK, "b  :");
   }
   /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
   /* printFloat(c, argM, argN, argM, "C  my ways:"); */
@@ -89,7 +102,7 @@ int main(int argc, char **argv) {
     printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
     printFloat(c, argM, argN, argM, "C  my ways:");
   }
-
+  if (!P) printDiff(c_ref, c, argM, argN, 0, 0);
   /* free */
   free(a);
   free(b);

@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:51
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-14 19:31:35
+ * @LastEditTime : 2022-01-16 01:04:19
  * @FilePath     : /sve/sve_gemm/gemm.h
  * @ToDo         :
  */
@@ -29,7 +29,8 @@
 // define block_size
 #define mc 256
 #define kc 128
-#define nb 1000
+#define nb 1024
+#define nc 256
 
 // const static int MR = 4;
 // const static int NR = 4;
@@ -59,6 +60,7 @@ void printFloat1(void* A, int row, int col, int lda, const char* arg);
 
 void printFloat(void* A, int row, int col, int lda, const char* arg);
 
+void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) ;
 
 // clang-format off
 // void my_dgemm_sve_4x4(const int M, const int N, const int K,
@@ -72,9 +74,8 @@ void printFloat(void* A, int row, int col, int lda, const char* arg);
 //                       const int* restrict ldc,
 //                       bool first_time);
 
-// void add_dot_4x4_sve(int k, double *a, int lda, double *b, int ldb, double *c, int ldc);
-void add_dot_4x4_sve(int k, double* restrict a, int* restrict lda, double* b, int* restrict ldb, int* restrict alpha, double* restrict c,
-                     int *restrict ldc, int*  restrict beta) ;
+void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
+                     VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
 
 void naive_gemm(const CBLAS_ORDER ordej,
                 const CBLAS_TRANSPOSE Atrans,

@@ -4,15 +4,15 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 17:41:36
+ * @LastEditTime : 2022-01-16 01:06:40
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
 #include "gemm.h"
 
 // @msg: in register computation C (mr(4) * nr(4)) + A (mr * kc) * B (kc  * nr) * alpha + beta * C; * @param {int} k
-void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, int *restrict ldb, int *restrict alpha,
-                     double *restrict c, int *restrict ldc, int *restrict beta) {
+void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb, VALUE_PTR restrict alpha,
+                     MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta) {
   /*
    *       So, this routine computes a 4x4 block of matrix A
    *
@@ -63,11 +63,11 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       /* " ldr x4, %[ldb]                             \n\t" */
       /* " lsl x4, x4, #3                             \n\t" */
       "                                            \n\t"
-      " ldr x5, %[ldc]                             \n\t"
+      " mov x5, %[ldc]                             \n\t"
       " lsl x5, x5, #3                             \n\t"
       "                                            \n\t"
-      " ldr x6, %[alpha]                           \n\t"
-      " ldr x7, %[beta]                            \n\t"
+      // " ldr x6, %[alpha]                           \n\t"
+      // " ldr x7, %[beta]                            \n\t"
       "                                            \n\t"
       " ldr x8, %[k_iter]                          \n\t"
       " ldr x9, %[k_left]                          \n\t"
@@ -103,10 +103,10 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t" /* !!!first load */
       " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p) A(1, p) A(2, p) A(3, p)*/
       "                                            \n\t"
-      " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p, 0) */
-      " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p, 1) */
-      " ld1rd z3.d, p0/z, [x11]                    \n\t" /* boradcast load vector B(p, 2) */
-      " ld1rd z4.d, p0/z, [x12]                    \n\t" /* boradcast load vector B(p, 3) */
+      " ld1rd z1.d, p0/z, [x1]                     \n\t" /* broadcast load vector B(p, 0) */
+      " ld1rd z2.d, p0/z, [x10]                    \n\t" /* broadcast load vector B(p, 1) */
+      " ld1rd z3.d, p0/z, [x11]                    \n\t" /* broadcast load vector B(p, 2) */
+      " ld1rd z4.d, p0/z, [x12]                    \n\t" /* broadcast load vector B(p, 3) */
       "                                            \n\t"
       " fmla z10.d, p0/m, z0.d, z1.d               \n\t" /* add_dot */
       " fmla z11.d, p0/m, z0.d, z2.d               \n\t"
@@ -115,7 +115,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       " add x0, x0, #32                            \n\t" /* update A ptr */
       "                                            \n\t"
-      " add x1,  x1,  #32                          \n\t" /* move the B ptr */
+      " add x1,  x1,  #32                          \n\t" /* update the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
       " add x12, x12, #32                          \n\t"
@@ -214,7 +214,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " add x11, x11, #32                          \n\t"
       " add x12, x12, #32                          \n\t"
       "                                            \n\t"
-      " sub x9, x9, 1                              \n\t"
+      " sub x9, x9, #1                             \n\t"
       " cmp x9, #0                                 \n\t"
       " bne D4LOOP                                 \n\t"
       "                                            \n\t"
@@ -226,8 +226,8 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       " END:                                       \n\t"
       "                                            \n\t"
-      " ld1rd z10.d, p0/z, [x6]                    \n\t" /* broad load alpha */
-      " ld1rd z11.d, p0/z, [x7]                    \n\t" /* broad load beta */
+      /* " ld1rd z10.d, p0/z, [x6]                    \n\t" [> broad load alpha <] */
+      /* " ld1rd z11.d, p0/z, [x7]                    \n\t" [> broad load beta <] */
       "                                            \n\t"
       "                                            \n\t"
       " st1d {z10.d}, p0, [x2]                     \n\t"
@@ -246,9 +246,9 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       [ a ] "m"(a),            // 0
       [ b ] "m"(b),            // 1
       [ c ] "m"(c),            // 2
-      [ lda ] "m"(lda),        // 3
-      [ ldb ] "m"(ldb),        // 4
-      [ ldc ] "m"(ldc),        // 5
+      [ lda ] "r"(lda),        // 3
+      [ ldb ] "r"(ldb),        // 4
+      [ ldc ] "r"(ldc),        // 5
       [ alpha ] "m"(alpha),    // 6
       [ beta ] "m"(beta),      // 7
       [ k_iter ] "m"(k_iter),  // 8
@@ -262,4 +262,5 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "z1", "z2", "z3", "z4",     /* use for B vec */
       "z10", "z11", "z12", "z13", /* use for tmp-vec to accumulate the result of AxB */
       "p0");
+  // printf("finished mygemm\n");
 }

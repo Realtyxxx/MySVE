@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 04:17:20
+ * @LastEditTime : 2022-01-15 23:36:46
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -150,7 +150,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
-      " add x12, x21, #32                          \n\t"
+      " add x12, x12, #32                          \n\t"
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 3, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 3, 1) */

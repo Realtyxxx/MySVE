@@ -1,1 +1,3 @@
-main *.o qemu*
+main
+*.o
+qemu*

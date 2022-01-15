@@ -1,6 +1,5 @@
 #include "gemm.h"
 
-
 /*
  * @name:
  * @msg: random initialize the matrix
@@ -93,4 +92,31 @@ void printFloat(void* A, int row, int col, int lda, const char* arg) {
     printf("\n");
   }
   printf("\n");
+}
+
+void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) {
+  printf("Listing first %d Differences > %.6f...\n", iListLength, fListTol);
+  long i, j, k;
+  int  error_count = 0;
+
+  for (i = 0; i < width; i++) {
+    if (error_count < iListLength) {
+      printf("\n  Col %d:\n", (int)i);
+    }
+
+    for (j = 0; j < height; j++) {
+      k           = i * height + j;
+      float fDiff = fabs(data1[k] - data2[k]);
+
+      if (fDiff > fListTol) {
+        if (error_count < iListLength) {
+          printf("    Loc(%d,%d)\tCPU=%.5f\tBLAS=%.5f\tDiff=%.6f\n", (int)j, (int)i, data1[k], data2[k], fDiff);
+        }
+
+        error_count++;
+      }
+    }
+  }
+
+  printf(" \n  Total Errors = %d\n", error_count);
 }
