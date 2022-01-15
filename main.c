@@ -60,19 +60,27 @@ int main(int argc, char **argv) {
   memset(c, 0, c_length);
 
   /* print the  matrix before operation */
-  printFloat(a, argM, argK, argM, "a  :");
-  printFloat(b, argK, argN, argK, "b  :");
-  // printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
-  // printFloat(c, argM, argN, argM, "C  my ways:");
+  /* printFloat(a, argM, argK, argM, "a  :"); */
+  /* printFloat(b, argK, argN, argK, "b  :"); */
+  /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
+  /* printFloat(c, argM, argN, argM, "C  my ways:"); */
+
+  double time;
 
   /* gemm operation */
+  tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
+  time = toc();
+  printf("naive : %lf\n", time);
   printf("runned\n");
+  tic();
   my_dgemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
+  time = toc();
+  printf("my : %lf\n", time);
 
   /* print the matrix after operation */
-  printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
-  printFloat(c, argM, argN, argM, "C  my ways:");
+  /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
+  /* printFloat(c, argM, argN, argM, "C  my ways:"); */
 
   /* free */
   free(a);

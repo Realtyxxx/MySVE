@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 04:21:57
+ * @LastEditTime : 2022-01-15 04:17:20
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -105,13 +105,12 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* !!!second load */
-      " add x0, x0, x3                             \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      " ld1d z0.d, p0/z, [x0, #1, MUL VL]          \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
-      " add x12, x12, #32                          \n\t"
+      " add x12, x21, #32                          \n\t"
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 1, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 1, 1) */
@@ -126,14 +125,12 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* third load */
-      " add x0, x0, x3                             \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
-      "                                            \n\t"
+      " ld1d z0.d, p0/z, [x0, #2, MUL VL]          \n\t" /* load A(0, p + 2) A(1, p + 2) A(2, p + 2) A(3, p + 2)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
-      " add x12, x12, #32                          \n\t"
+      " add x12, x21, #32                          \n\t"
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 2, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 2, 1) */
@@ -148,13 +145,12 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* forth load */
-      " add x0, x0, x3                             \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      " ld1d z0.d, p0/z, [x0, #3, MUL VL]          \n\t" /* load A(0, p + 3) A(1, p + 3) A(2, p + 3) A(3, p + 3)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
-      " add x12, x12, #32                          \n\t"
+      " add x12, x21, #32                          \n\t"
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 3, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 3, 1) */
