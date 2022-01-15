@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 04:21:57
+ * @LastEditTime : 2022-01-15 03:49:01
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -56,8 +56,8 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " ldr x1, %[b]                               \n\t" /* load the address of the B(0, 0) */
       " ldr x2, %[c]                               \n\t" /* load the address of the C(0, 0) */
       "                                            \n\t"
-      " ldr x3, %[lda]                             \n\t"
-      " lsl x3, x3, #3                             \n\t" /* lda * sizeof(double)  */
+      /* " ldr x3, %[lda]                             \n\t" */
+      /* " lsl x3, x3, #3                             \n\t" [> lda * sizeof(double) <] */
       "                                            \n\t"
       /* " ldr x4, %[ldb]                             \n\t" */
       /* " lsl x4, x4, #3                             \n\t" */
@@ -69,11 +69,9 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " ldr x7, %[beta]                            \n\t"
       "                                            \n\t"
       " ldr x8, %[k_iter]                          \n\t"
+      " ldr x9, %[k_left]                          \n\t"
       "                                            \n\t"
-      " prfm pldl1keep, [x2]                       \n\t" /* Prefetch c_row1 */
-      " prfm pldl1keep, [x20]                      \n\t" /* Prefetch c_row2 */
-      " prfm pldl1keep, [x21]                      \n\t" /* Prefetch c_row3 */
-      " prfm pldl1keep, [x22]                      \n\t" /* Prefetch c_row4 */
+      "                                            \n\t"
       "                                            \n\t"
       " add x10, x1,  #8                           \n\t" /* get the address of the B(0, 1) */
       " add x11, x1,  #16                          \n\t" /* get the address of the B(0, 2) */
@@ -83,7 +81,20 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " add x21, x20, x5                           \n\t" /* get the address of the C(0, 2) */
       " add x22, x21, x5                           \n\t" /* get the address of the C(0, 3) */
       "                                            \n\t"
+      " prfm pldl1keep, [x2]                       \n\t" /* Prefetch c_row1 */
+      " prfm pldl1keep, [x20]                      \n\t" /* Prefetch c_row2 */
+      " prfm pldl1keep, [x21]                      \n\t" /* Prefetch c_row3 */
+      " prfm pldl1keep, [x22]                      \n\t" /* Prefetch c_row4 */
+      "                                            \n\t"
       " ptrue p0.d, VL4                            \n\t" /* 4 elements per vector , actually we could use 8 elements */
+      "                                            \n\t"
+      "                                            \n\t"
+      " dup z10.d, #0                              \n\t" /* tmp Vec prepare */
+      " dup z11.d, #0                              \n\t"
+      " dup z12.d, #0                              \n\t"
+      " dup z13.d, #0                              \n\t"
+      "                                            \n\t"
+      " D16LOOP:                                   \n\t"
       "                                            \n\t"
       "                                            \n\t" /* !!!first load */
       " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p) A(1, p) A(2, p) A(3, p)*/
@@ -93,11 +104,6 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " ld1rd z3.d, p0/z, [x11]                    \n\t" /* boradcast load vector B(p, 2) */
       " ld1rd z4.d, p0/z, [x12]                    \n\t" /* boradcast load vector B(p, 3) */
       "                                            \n\t"
-      " dup z10.d, #0                              \n\t" /* tmp Vec prepare */
-      " dup z11.d, #0                              \n\t"
-      " dup z12.d, #0                              \n\t"
-      " dup z13.d, #0                              \n\t"
-      "                                            \n\t"
       " fmla z10.d, p0/m, z0.d, z1.d               \n\t" /* add_dot */
       " fmla z11.d, p0/m, z0.d, z2.d               \n\t"
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
@@ -105,7 +111,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* !!!second load */
-      " add x0, x0, x3                             \n\t"
+      " add x0, x0, #32                            \n\t"
       " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
@@ -126,9 +132,8 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* third load */
-      " add x0, x0, x3                             \n\t"
+      " add x0, x0, #32                            \n\t"
       " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
-      "                                            \n\t"
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
@@ -148,7 +153,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t" /* forth load */
-      " add x0, x0, x3                             \n\t"
+      " add x0, x0, #32                            \n\t"
       " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
@@ -167,8 +172,9 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
       "                                            \n\t"
       " add x0, x0, #128                           \n\t" /* after unrolled, we need to update the A ptr */
-      "                                            \n\t"
-      "                                            \n\t"
+      " sub x8, x8, #1                             \n\t"
+      " cmp x8, #0                                 \n\t"
+      " bne D16LOOP                                \n\t"
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t"

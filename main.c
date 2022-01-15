@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:04
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 04:02:38
+ * @LastEditTime : 2022-01-15 15:22:33
  * @FilePath     : /sve/sve_gemm/main.c
  * @ToDo         :
  */
@@ -28,9 +28,13 @@ double toc(void) {
 }
 
 int main(int argc, char **argv) {
-  if (argc < 3) {
+  bool P = false;
+  if (argc < 6) {
     printf("USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n");
     return -1;
+  }
+  if (argc == 7) {
+    P = true;
   }
   int             argM        = atoi(argv[1]);
   int             argN        = atoi(argv[2]);
@@ -60,8 +64,10 @@ int main(int argc, char **argv) {
   memset(c, 0, c_length);
 
   /* print the  matrix before operation */
-  /* printFloat(a, argM, argK, argM, "a  :"); */
-  /* printFloat(b, argK, argN, argK, "b  :"); */
+  if (P) {
+  printFloat(a, argM, argK, argM, "a  :");
+  printFloat(b, argK, argN, argK, "b  :");
+  }
   /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
   /* printFloat(c, argM, argN, argM, "C  my ways:"); */
 
@@ -71,16 +77,18 @@ int main(int argc, char **argv) {
   tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
   time = toc();
-  printf("naive : %lf\n", time);
+  if (!P) printf("naive : %lf\n", time);
   printf("runned\n");
   tic();
   my_dgemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
   time = toc();
-  printf("my : %lf\n", time);
+  if (!P) printf("my : %lf\n", time);
 
   /* print the matrix after operation */
-  /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
-  /* printFloat(c, argM, argN, argM, "C  my ways:"); */
+  if (P) {
+    printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
+    printFloat(c, argM, argN, argM, "C  my ways:");
+  }
 
   /* free */
   free(a);
