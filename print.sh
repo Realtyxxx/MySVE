@@ -1,1 +1,1 @@
-make -j32 && ./main 8 8 7 1 0 1
+make -j32 && ./main 4 4 8 1 0 1

@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 16:42:11
+ * @LastEditTime : 2022-01-15 17:41:36
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -49,7 +49,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
   /* 4 times unrolled */
   uint64_t k_iter = k / 4;
   uint64_t k_left = k % 4;
-  printf("k == %d\nk_iter == %ld\nk_left == %ld\n", k, k_iter, k_left);
+  // printf("k == %d\tk_iter == %ld\tk_left == %ld\n", k, k_iter, k_left);
 
   __asm__ volatile(
       "                                            \n\t"
@@ -95,6 +95,9 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " dup z12.d, #0                              \n\t"
       " dup z13.d, #0                              \n\t"
       "                                            \n\t"
+      " cmp x8, #0                                 \n\t" /* if k_iter == 0 jump to deal with k_left */
+      " beq D4LOOP                                 \n\t"
+      "                                            \n\t"
       " D16LOOP:                                   \n\t"
       "                                            \n\t"
       "                                            \n\t" /* !!!first load */
@@ -130,7 +133,8 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z11.d, p0/m, z0.d, z2.d               \n\t"
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
-      " add x0, x0, #32                            \n\t"
+      "                                            \n\t"
+      " add x0, x0, #32                            \n\t" /* update A ptr */
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
@@ -175,7 +179,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
       "                                            \n\t"
-      " add x0, x0, #32                            \n\t" /* after unrolled, we need to update the A ptr */
+      " add x0, x0, #32                            \n\t" /* update A ptr */
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"

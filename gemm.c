@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:29:26
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 04:01:25
+ * @LastEditTime : 2022-01-15 17:41:16
  * @FilePath     : /sve/sve_gemm/gemm.c
  * @ToDo         :
  */
@@ -135,7 +135,7 @@ void my_dgemm(const CBLAS_ORDER order,
     for (i = 0; i < M; i += mc) {
       ib = min(M - i, mc);
       // gebp Ablock(mc * kc) x Bpanel(kc * nc) but now the nc is N
-      printf("i == %d\n", i);
+      // printf("i == %d\n", i);
       my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
     }
   }
