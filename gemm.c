@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:29:26
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 01:04:32
+ * @LastEditTime : 2022-01-16 01:25:13
  * @FilePath     : /sve/sve_gemm/gemm.c
  * @ToDo         :
  */
@@ -129,7 +129,7 @@ void my_dgemm(const CBLAS_ORDER order,
       return;
     }
   }
-  int i, p, pb, ib, jc;
+  int i, p, pb, ib;
   //
   // for (jc = 0; jc < N; jc += nc)
     for (p = 0; p < K; p += kc) {

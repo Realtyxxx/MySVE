@@ -48,11 +48,11 @@ int main(int argc, char **argv) {
     if (argc == 7) {
       P = true;
     }
-    argM             = atoi(argv[1]);
-    argN             = atoi(argv[2]);
-    argK             = atoi(argv[3]);
-    VALUE_TYPE alpha = atof(argv[4]);
-    VALUE_TYPE beta  = atof(argv[5]);
+    argM  = atoi(argv[1]);
+    argN  = atoi(argv[2]);
+    argK  = atoi(argv[3]);
+    alpha = atof(argv[4]);
+    beta  = atof(argv[5]);
   }
   int             a_length    = argM * argK;
   int             b_length    = argK * argN;
@@ -68,11 +68,12 @@ int main(int argc, char **argv) {
   MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
-  // randomInit(a, a_length);
-  // randomInit(b, b_length);
-  integerInit(a, a_length, 1);
-  integerInit(b, b_length, 1);
-  /* memset(c, 0, c_length); */
+  randomInit(a, a_length);
+  randomInit(b, b_length);
+  /* integerInit(a, a_length, 1); */
+  /* integerInit(b, b_length, 1); */
+  /* integerInit(c, c_length, 1); */
+  /* integerInit(c_ref, c_length, 1); */
   memset(c_ref, 0, c_length);
   memset(c, 0, c_length);
 
@@ -102,7 +103,7 @@ int main(int argc, char **argv) {
     printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
     printFloat(c, argM, argN, argM, "C  my ways:");
   }
-  if (!P) printDiff(c_ref, c, argM, argN, 0, 0);
+  if (!P) printDiff(c_ref, c, argM, argN, 0, 1e-6);
   /* free */
   free(a);
   free(b);
