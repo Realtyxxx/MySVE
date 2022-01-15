@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-15 03:49:01
+ * @LastEditTime : 2022-01-15 16:42:11
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -49,6 +49,7 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
   /* 4 times unrolled */
   uint64_t k_iter = k / 4;
   uint64_t k_left = k % 4;
+  printf("k == %d\nk_iter == %ld\nk_left == %ld\n", k, k_iter, k_left);
 
   __asm__ volatile(
       "                                            \n\t"
@@ -109,15 +110,16 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
       "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t" /* !!!second load */
-      " add x0, x0, #32                            \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      " add x0, x0, #32                            \n\t" /* update A ptr */
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
       " add x12, x12, #32                          \n\t"
+      "                                            \n\t"
+      "                                            \n\t" /* !!!second load */
+      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      "                                            \n\t"
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 1, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 1, 1) */
@@ -128,17 +130,16 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z11.d, p0/m, z0.d, z2.d               \n\t"
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t" /* third load */
       " add x0, x0, #32                            \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
       " add x12, x12, #32                          \n\t"
+      "                                            \n\t"
+      "                                            \n\t"
+      "                                            \n\t" /* third load */
+      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 2, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 2, 1) */
@@ -151,15 +152,18 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
       "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t" /* forth load */
-      " add x0, x0, #32                            \n\t"
-      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      " add x0, x0, #32                            \n\t" /* update A ptr */
       "                                            \n\t"
       " add x1,  x1,  #32                          \n\t" /* move the B ptr */
       " add x10, x10, #32                          \n\t"
       " add x11, x11, #32                          \n\t"
       " add x12, x12, #32                          \n\t"
+      "                                            \n\t"
+      "                                            \n\t"
+      "                                            \n\t"
+      "                                            \n\t"
+      "                                            \n\t" /* forth load */
+      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
       "                                            \n\t"
       " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 3, 0) */
       " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 3, 1) */
@@ -171,11 +175,44 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
       " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
       "                                            \n\t"
-      " add x0, x0, #128                           \n\t" /* after unrolled, we need to update the A ptr */
-      " sub x8, x8, #1                             \n\t"
-      " cmp x8, #0                                 \n\t"
+      " add x0, x0, #32                            \n\t" /* after unrolled, we need to update the A ptr */
+      "                                            \n\t"
+      " add x1,  x1,  #32                          \n\t" /* move the B ptr */
+      " add x10, x10, #32                          \n\t"
+      " add x11, x11, #32                          \n\t"
+      " add x12, x12, #32                          \n\t"
+      "                                            \n\t"
+      " sub x8, x8, #1                             \n\t" /* update the k_iter */
+      " cmp x8, #0                                 \n\t" /* compare if need to loop */
       " bne D16LOOP                                \n\t"
       "                                            \n\t"
+      " cmp x9, #0                                 \n\t"
+      " beq END                                    \n\t"
+      "                                            \n\t"
+      " D4LOOP:                                    \n\t"
+      "                                            \n\t"
+      " ld1d z0.d, p0/z, [x0]                      \n\t" /* load A(0, p + 1) A(1, p + 1) A(2, p + 1) A(3, p + 1)*/
+      "                                            \n\t"
+      " ld1rd z1.d, p0/z, [x1]                     \n\t" /* boradcast load vector B(p + 3, 0) */
+      " ld1rd z2.d, p0/z, [x10]                    \n\t" /* boradcast load vector B(p + 3, 1) */
+      " ld1rd z3.d, p0/z, [x11]                    \n\t" /* boradcast load vector B(p + 3, 2) */
+      " ld1rd z4.d, p0/z, [x12]                    \n\t" /* boradcast load vector B(p + 3, 3) */
+      "                                            \n\t"
+      " fmla z10.d, p0/m, z0.d, z1.d               \n\t" /* add_dot */
+      " fmla z11.d, p0/m, z0.d, z2.d               \n\t"
+      " fmla z12.d, p0/m, z0.d, z3.d               \n\t"
+      " fmla z13.d, p0/m, z0.d, z4.d               \n\t"
+      "                                            \n\t"
+      " add x0, x0, #32                            \n\t" /* after unrolled, we need to update the A ptr */
+      "                                            \n\t"
+      " add x1,  x1,  #32                          \n\t" /* move the B ptr */
+      " add x10, x10, #32                          \n\t"
+      " add x11, x11, #32                          \n\t"
+      " add x12, x12, #32                          \n\t"
+      "                                            \n\t"
+      " sub x9, x9, 1                              \n\t"
+      " cmp x9, #0                                 \n\t"
+      " bne D4LOOP                                 \n\t"
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t"
@@ -183,25 +220,16 @@ void add_dot_4x4_sve(int k, double *restrict a, int *restrict lda, double *b, in
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t"
+      " END:                                       \n\t"
       "                                            \n\t"
+      " ld1rd z10.d, p0/z, [x6]                    \n\t" /* broad load alpha */
+      " ld1rd z11.d, p0/z, [x7]                    \n\t" /* broad load beta */
       "                                            \n\t"
       "                                            \n\t"
       " st1d {z10.d}, p0, [x2]                     \n\t"
       " st1d {z11.d}, p0, [x20]                    \n\t"
       " st1d {z12.d}, p0, [x21]                    \n\t"
       " st1d {z13.d}, p0, [x22]                    \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      " ld1rd z10.d, p0/z, [x6]                    \n\t" /* broad load alpha */
-      " ld1rd z11.d, p0/z, [x7]                    \n\t" /* broad load beta */
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
-      "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t"
       "                                            \n\t"
