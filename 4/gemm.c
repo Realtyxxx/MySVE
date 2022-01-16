@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:29:26
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 01:25:13
+ * @LastEditTime : 2022-01-16 21:50:51
  * @FilePath     : /sve/sve_gemm/gemm.c
  * @ToDo         :
  */
@@ -84,9 +84,16 @@ void my_dgemm_inside(const int M, const int N, const int K,
                      bool first_time)
 // clang-format on
 {
+  /*
+   *   first_time is true when update  A_block and C_pannel
+   *   M = mc, N = nc, K = kc
+   *  */
+
+  //  printf("in the block m == %d,  n == %d,  k == %d\n", M, N, K);
+
   int           i, j;
   double        packedA[M * K];
-  static double packedB[kc * nb];
+  static double packedB[kc * nc];
 
   // nr is 4
   //  Loop over the columns of C, unrolled by 4
@@ -106,6 +113,7 @@ void my_dgemm_inside(const int M, const int N, const int K,
       // in register computation
       // C (mr(4) * nr(4)) = A (mr * kc) * B (kc  * nr) * alpha + beta * C;
 
+      // add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
       add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
     }
   }
@@ -130,15 +138,23 @@ void my_dgemm(const CBLAS_ORDER order,
     }
   }
   int i, p, pb, ib;
-  //
-  // for (jc = 0; jc < N; jc += nc)
-    for (p = 0; p < K; p += kc) {
+  for (int jc = 0; jc < N; jc += nc) { /* iterate nc */
+    int qb = min(N - jc, nc);
+    for (p = 0; p < K; p += kc) { /* iterate kc , and now B pannel maked*/
       pb = min(K - p, kc);
-      for (i = 0; i < M; i += mc) {
+      for (i = 0; i < M; i += mc) { /* iterate mc, and A block maked */
         ib = min(M - i, mc);
         // gebp Ablock(mc * kc) x Bpanel(kc * nc) but now the nc is N
         // printf("i == %d\n", i);
-        my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
+        // my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
+        my_dgemm_inside(ib, qb, pb, alpha, &A(i, p), lda, &B(p, jc), ldb, beta, &C(i, jc), ldc, i == 0);
       }
     }
+  }
 }
+
+/*
+ * A block  is mc * kc size
+ * B pannel is kc * nc size
+ * C block  is mc * nc size
+ */

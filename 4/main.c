@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:04
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 00:48:39
+ * @LastEditTime : 2022-01-17 00:23:11
  * @FilePath     : /sve/sve_gemm/main.c
  * @ToDo         :
  */
@@ -27,7 +27,20 @@ double toc(void) {
   return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
 }
 
+int get_vector_length() {
+  int size = 0;
+
+  __asm__ volatile(
+      " mov  %[size], #0          \n\t"
+      " incb %[size]              \n\t"
+      : [ size ] "=r"(size)
+      :
+      :);
+  return size * 8;
+}
+
 int main(int argc, char **argv) {
+  printf("%d\n", get_vector_length());
   bool       P = false;
   int        argM;
   int        argN;
@@ -54,6 +67,7 @@ int main(int argc, char **argv) {
     alpha = atof(argv[4]);
     beta  = atof(argv[5]);
   }
+  printf("M == %d, N == %d, K == %d\nmc == %d, nc == %d, kc == %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, mc, nc, kc, alpha, beta);
   int             a_length    = argM * argK;
   int             b_length    = argK * argN;
   int             c_length    = argM * argN;
@@ -70,12 +84,12 @@ int main(int argc, char **argv) {
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
   randomInit(a, a_length);
   randomInit(b, b_length);
-  /* integerInit(a, a_length, 1); */
-  /* integerInit(b, b_length, 1); */
+  // integerInit(a, a_length, 1);
+  // integerInit(b, b_length, 1);
   /* integerInit(c, c_length, 1); */
   /* integerInit(c_ref, c_length, 1); */
-  memset(c_ref, 0, c_length);
-  memset(c, 0, c_length);
+  memset(c_ref, 1, c_length);
+  memset(c, 1, c_length);
 
   /* print the  matrix before operation */
   if (P) {
@@ -92,7 +106,7 @@ int main(int argc, char **argv) {
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
   time = toc();
   if (!P) printf("naive : %lf\n", time);
-  printf("runned\n");
+  // printf("programs before \"my_gemm\" runned\n");
   tic();
   my_dgemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
   time = toc();

@@ -4,7 +4,7 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:51
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 01:04:19
+ * @LastEditTime : 2022-01-17 00:53:24
  * @FilePath     : /sve/sve_gemm/gemm.h
  * @ToDo         :
  */
@@ -27,13 +27,9 @@
 #define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
 
 // define block_size
-#define mc 256
-#define kc 128
-#define nb 1024
-#define nc 256
-
-// const static int MR = 4;
-// const static int NR = 4;
+#define mc 32
+#define kc 64
+#define nc 64
 
 typedef double      VALUE_TYPE;
 typedef VALUE_TYPE* VALUE_PTR;
@@ -75,6 +71,9 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
 //                       bool first_time);
 
 void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
+                     VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
+
+void add_dot_8x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
                      VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
 
 void naive_gemm(const CBLAS_ORDER ordej,

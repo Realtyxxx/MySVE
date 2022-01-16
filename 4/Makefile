@@ -11,10 +11,11 @@ COMPILE.c=$(GCC) $(CFLAGS) -c
 .o:.S
 
 all: main
-main : main.o gemm.o sve_4x4.o util.o
+main : main.o gemm.o sve_4x4.o util.o sve_8x4.o
 main.o : main.c
 gemm.o : gemm.c
 sve_4x4.o : sve_4x4.c
+sve_8x4.o : sve_8x4.c
 util.o : util.c
 
 
