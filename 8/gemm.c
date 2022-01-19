@@ -4,8 +4,8 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:29:26
  * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 21:50:51
- * @FilePath     : /sve/sve_gemm/gemm.c
+ * @LastEditTime : 2022-01-17 01:13:48
+ * @FilePath     : /sve/sve_gemm/8/gemm.c
  * @ToDo         :
  */
 
@@ -56,6 +56,10 @@ void PackMatrixA(int k, double *a, int lda, double *a_to) {
     *a_to++ = *(a_ij_pntr + 1);
     *a_to++ = *(a_ij_pntr + 2);
     *a_to++ = *(a_ij_pntr + 3);
+    *a_to++ = *(a_ij_pntr + 4);
+    *a_to++ = *(a_ij_pntr + 5);
+    *a_to++ = *(a_ij_pntr + 6);
+    *a_to++ = *(a_ij_pntr + 7);
   }
 }
 
@@ -102,7 +106,7 @@ void my_dgemm_inside(const int M, const int N, const int K,
     if (first_time) PackMatrixB(K, &B(0, j), ldb, &packedB[j * K]);
 
     // mr is 4
-    for (i = 0; i < M; i += 4) {
+    for (i = 0; i < M; i += 8) {
 
       // Loop over the rows of C
       // Update C( i,j ), C( i,j+1 ), C( i,j+2 ), and C( i,j+3 )
@@ -114,7 +118,8 @@ void my_dgemm_inside(const int M, const int N, const int K,
       // C (mr(4) * nr(4)) = A (mr * kc) * B (kc  * nr) * alpha + beta * C;
 
       // add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
-      add_dot_4x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
+      // printf("m == %d, n == %d, k == %d, i == %d, j == %d\n", M, N, K, i, j);
+      add_dot_8x4_sve(K, &packedA[i * K], 4, &packedB[j * K], 4, &alpha, &C(i, j), ldc, &beta);
     }
   }
 }
@@ -131,12 +136,12 @@ void my_dgemm(const CBLAS_ORDER order,
               MATRIX_TYPE c, const int ldc)
 // clang-format on
 {
-  if (order == CblasRowMajor) {
-    if (lda != M || ldb != K || ldc != M) {
-      printf("not for this gemm\n");
-      return;
-    }
-  }
+  // if (order == CblasRowMajor) {
+  //   if (lda != M || ldb != K || ldc != M) {
+  //     printf("not for this gemm\n");
+  //     return;
+  //   }
+  // }
   int i, p, pb, ib;
   for (int jc = 0; jc < N; jc += nc) { /* iterate nc */
     int qb = min(N - jc, nc);

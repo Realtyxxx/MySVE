@@ -28,7 +28,7 @@
 
 // define block_size
 #define mc 32
-#define kc 64
+#define kc 128
 #define nc 64
 
 typedef double      VALUE_TYPE;

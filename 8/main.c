@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
             USE default ./main 4 4 4 1 0 1");
     P     = true;
-    argM  = 4;
+    argM  = 8;
     argN  = 4;
     argK  = 4;
     alpha = 1.0f;
