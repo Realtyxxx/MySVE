@@ -3,8 +3,8 @@
  * @Descripttion : SVE_GEMM
  * @version      : 1.0
  * @Date         : 2022-01-12 16:49:19
- * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-16 16:18:32
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-03-18 19:31:47
  * @FilePath     : /sve/sve_gemm/sve_4x4.c
  * @ToDo         :
  */
@@ -37,7 +37,9 @@ void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restric
    *
    *    for (int p = 0; p < k; p++) {
    *    A :  load a_vector only 1 vector;
+   *         for the pth col of A
    *    B :  inc the ptr and dup the b value to each b_vec, we need 4 b_vec and 4 b_ptr
+   *         for the pth row of B
    *
    *    c_00_c_10_c_20_c_30 += a_0p_a_1p_a_2p_a_3p * b_p0_b_p0_b_p0_b_p0;
    *    c_01_c_11_c_21_c_31 += a_0p_a_1p_a_2p_a_3p * b_p1_b_p1_b_p1_b_p1;

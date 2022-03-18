@@ -3,8 +3,8 @@
  * @Descripttion : SVE_GEMM
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:51
- * @LastEditors  : Realtyxxx
- * @LastEditTime : 2022-01-17 00:53:24
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-03-18 19:49:28
  * @FilePath     : /sve/sve_gemm/gemm.h
  * @ToDo         :
  */
@@ -57,18 +57,6 @@ void printFloat1(void* A, int row, int col, int lda, const char* arg);
 void printFloat(void* A, int row, int col, int lda, const char* arg);
 
 void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) ;
-
-// clang-format off
-// void my_dgemm_sve_4x4(const int M, const int N, const int K,
-//                       const VALUE_PTR restrict alpha,
-//                       const MATRIX_TYPE restrict a,
-//                       const int* restrict lda,
-//                       const MATRIX_TYPE restrict b,
-//                       const int* restrict ldb,
-//                       const VALUE_PTR restrict beta,
-//                       MATRIX_TYPE restrict c,
-//                       const int* restrict ldc,
-//                       bool first_time);
 
 void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
                      VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
