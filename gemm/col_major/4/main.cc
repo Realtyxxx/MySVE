@@ -29,7 +29,9 @@
 static struct timeval start;
 static struct timeval end;
 
-void tic(void) { gettimeofday(&start, NULL); }
+void tic(void) {
+  gettimeofday(&start, NULL);
+}
 
 double toc(void) {
   gettimeofday(&end, NULL);
@@ -74,7 +76,8 @@ int main(int argc, char **argv) {
     alpha = atof(argv[4]);
     beta  = atof(argv[5]);
   }
-  printf("M == %d, N == %d, K == %d\nmc == %d, nc == %d, kc == %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, mc, nc, kc, alpha, beta);
+  printf("M == %d, N == %d, K == %d\nmc == %d, nc == %d, kc == %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, mc,
+         nc, kc, alpha, beta);
   int             a_length    = argM * argK;
   int             b_length    = argK * argN;
   int             c_length    = argM * argN;
@@ -98,7 +101,6 @@ int main(int argc, char **argv) {
   InstantInit(c, c_length, 3.f);
   InstantInit(c_ref, c_length, 3.f);
 
-
   /* print the  matrix before operation */
   if (P) {
     printFloat(a, argM, argK, argM, "a  :");
@@ -113,13 +115,15 @@ int main(int argc, char **argv) {
   tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
   time = toc();
-  if (!P) printf("naive : %lf\n", time);
+  if (!P)
+    printf("naive : %lf\n", time);
 
   /* my gemm operation */
   tic();
   my_dgemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
   time = toc();
-  if (!P) printf("my : %lf\n", time);
+  if (!P)
+    printf("my : %lf\n", time);
 
   /* print the matrix after operation */
   if (P) {

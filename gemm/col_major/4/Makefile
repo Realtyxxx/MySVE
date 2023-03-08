@@ -8,15 +8,15 @@ CXXFLAGS=-g -Wall -march=armv8.2-a+sve -O2 -I./
 LDFLAGS=
 
 COMPILE.c=$(GCC) $(CFLAGS) -c
-.o:.c
+.o:.cc
 .o:.S
 
 all: main
 main : main.o gemm.o sve_4x4.o util.o sve_8x4.o
-main.o : main.c
-gemm.o : gemm.c
-sve_4x4.o : sve_4x4.c
-sve_8x4.o : sve_8x4.c
+main.o : main.cc
+gemm.o : gemm.cc
+sve_4x4.o : sve_4x4.cc
+sve_8x4.o : sve_8x4.cc
 util.o : util.c
 
 
