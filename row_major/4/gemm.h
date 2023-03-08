@@ -21,10 +21,10 @@
 // macro function
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-// col major store order
-#define A(i, j) a[(j)*lda + (i)]  // A : m x k   lda = m;
-#define B(i, j) b[(j)*ldb + (i)]  // B : k x n   ldb = k;
-#define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
+// row major store order
+#define A(i, j) a[(i)*lda + (j)]  // A : m x k   lda = m;
+#define B(i, j) b[(i)*ldb + (j)]  // B : k x n   ldb = k;
+#define C(i, j) c[(i)*ldc + (j)]  // C : m x n   ldc = m;
 
 // define block_size
 #define mc 32
@@ -37,6 +37,7 @@ typedef int         DIM_TYPE;
 typedef DIM_TYPE*   DIM_PTR;
 typedef VALUE_TYPE* MATRIX_TYPE;
 
+// clang-format off
 typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;
 
 typedef enum CBLAS_TRANSPOSE {
@@ -64,7 +65,7 @@ void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restric
 void add_dot_8x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
                      VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
 
-void naive_gemm(const CBLAS_ORDER ordej,
+void naive_gemm(const CBLAS_ORDER order,
                 const CBLAS_TRANSPOSE Atrans,
                 const CBLAS_TRANSPOSE Btrans,
                 const int M, const int N, const int K,

@@ -4,17 +4,20 @@
  * @version      : 1.0
  * @Date         : 2022-01-11 19:30:04
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-03-18 20:00:01
+ * @LastEditTime: 2022-03-18 20:35:39
  * @FilePath     : /sve/sve_gemm/main.c
  * @ToDo         :
  */
-/*  ______    _______  _______  ___      _______  __   __  __   __  __   __  __   __ 
+
+/*  ______    _______  _______  ___      _______  __   __  __   __  __   __  __   __
 |    _ |  |       ||   _   ||   |    |       ||  | |  ||  |_|  ||  |_|  ||  |_|  |
 |   | ||  |    ___||  |_|  ||   |    |_     _||  |_|  ||       ||       ||       |
 |   |_||_ |   |___ |       ||   |      |   |  |       ||       ||       ||       |
-|    __  ||    ___||       ||   |___   |   |  |_     _| |     |  |     |  |     | 
+|    __  ||    ___||       ||   |___   |   |  |_     _| |     |  |     |  |     |
 |   |  | ||   |___ |   _   ||       |  |   |    |   |  |   _   ||   _   ||   _   |
 |___|  |_||_______||__| |__||_______|  |___|    |___|  |__| |__||__| |__||__| |__|*/
+
+#include <arm_sve.h>
 #include <assert.h>
 #include <memory.h>
 #include <stdio.h>
@@ -39,14 +42,15 @@ int get_vector_length() {
   __asm__ volatile(
       " mov  %[size], #0          \n\t"
       " incb %[size]              \n\t"
-      : [ size ] "=r"(size)
+      : [size] "=r"(size)
       :
       :);
   return size * 8;
 }
 
 int main(int argc, char **argv) {
-  printf("%d\n", get_vector_length());
+  printf("%d bits\n", get_vector_length());
+  printf("%d floats\n", svcntw());
   bool       P = false;
   int        argM;
   int        argN;
@@ -62,11 +66,8 @@ int main(int argc, char **argv) {
     argN  = 4;
     argK  = 4;
     alpha = 1.0f;
-    beta  = 0;
+    beta  = 1;
   } else {
-    if (argc == 7) {
-      P = true;
-    }
     argM  = atoi(argv[1]);
     argN  = atoi(argv[2]);
     argK  = atoi(argv[3]);
@@ -94,8 +95,9 @@ int main(int argc, char **argv) {
   // integerInit(b, b_length, 1);
   /* integerInit(c, c_length, 1); */
   /* integerInit(c_ref, c_length, 1); */
-  memset(c_ref, 1, c_length);
-  memset(c, 1, c_length);
+  InstantInit(c, c_length, 3.f);
+  InstantInit(c_ref, c_length, 3.f);
+
 
   /* print the  matrix before operation */
   if (P) {
@@ -107,12 +109,13 @@ int main(int argc, char **argv) {
 
   double time;
 
-  /* gemm operation */
+  /* naive gemm operation */
   tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
   time = toc();
   if (!P) printf("naive : %lf\n", time);
-  // printf("programs before \"my_gemm\" runned\n");
+
+  /* my gemm operation */
   tic();
   my_dgemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
   time = toc();
@@ -123,7 +126,9 @@ int main(int argc, char **argv) {
     printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
     printFloat(c, argM, argN, argM, "C  my ways:");
   }
-  if (!P) printDiff(c_ref, c, argM, argN, 0, 1e-6);
+
+  printDiff(c_ref, c, argM, argN, 0, 1e-6);
+
   /* free */
   free(a);
   free(b);

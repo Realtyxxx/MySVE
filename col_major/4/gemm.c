@@ -137,14 +137,24 @@ void my_dgemm(const CBLAS_ORDER order,
       return;
     }
   }
-  int i, p, pb, ib;
-  for (int jc = 0; jc < N; jc += nc) { /* iterate nc */
-    int qb = min(N - jc, nc);
+
+  // iterator
+  int i;   // iterate M by stride of mc
+  int p;   // iterate  K by stride of kc
+  int jc;  // jc : nc iterate N by stride of jc
+
+  // size value
+  int ib;  // value gets by iterator i ib : mc
+  int pb;  // value gets by iterate p pb : kc
+  int qb;  // value gets by iterator jc qb : nc
+
+  for (jc = 0; jc < N; jc += nc) { /* iterate nc */
+    qb = min(N - jc, nc);
     for (p = 0; p < K; p += kc) { /* iterate kc , and now B pannel maked*/
       pb = min(K - p, kc);
       for (i = 0; i < M; i += mc) { /* iterate mc, and A block maked */
         ib = min(M - i, mc);
-        // gebp Ablock(mc * kc) x Bpanel(kc * nc) but now the nc is N
+        // gebp A block(mc * kc) x B panel(kc * nc) but now the nc is N
         // printf("i == %d\n", i);
         // my_dgemm_inside(ib, N, pb, alpha, &A(i, p), lda, &B(p, 0), ldb, beta, &C(i, 0), ldc, i == 0);
         my_dgemm_inside(ib, qb, pb, alpha, &A(i, p), lda, &B(p, jc), ldb, beta, &C(i, jc), ldc, i == 0);
