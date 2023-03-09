@@ -4,10 +4,13 @@ endif
 
 SVE_FLAGS = -msve-vector-bits=256
 GCC=${GCC_PATH}/bin/gcc
-CFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  -fopenmp
-CXXFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  -fopenmp 
+CFLAGS= -g -Wall -march=armv8.2-a+sve -O0 -I./  
+# CXXFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  
+LDFLAGS=
+# LDFLAGS+= -fopenmp
+# CFLAGS+= -fopenmp -DMULTI_THREADS
 
-LDFLAGS=-fopenmp
+
 #  -fopenmp
 COMPILE.c=$(GCC) $(CFLAGS) -c
 

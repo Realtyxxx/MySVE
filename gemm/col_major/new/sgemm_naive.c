@@ -48,13 +48,17 @@ void naive_gemm(const CBLAS_ORDER order,
   MATRIX_TYPE T = (MATRIX_TYPE)malloc((unsigned long)M * N * sizeof(VALUE_TYPE));
   memset(T, 0, M * N * sizeof(VALUE_TYPE));
   int i, j, k;
+#if MULTI_THREADS
 #pragma omp parallel for private(i)
+#endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
       C(i, j) = beta * C(i, j);
     }
   }
+#if MULTI_THREADS
 #pragma omp parallel for private(i, k)
+#endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
       for (k = 0; k < K; k++) {
@@ -62,7 +66,9 @@ void naive_gemm(const CBLAS_ORDER order,
       }
     }
   }
+#if MULTI_THREADS
 #pragma omp parallel for private(i)
+#endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
       C(i, j) += alpha * T[i + j * ldc];

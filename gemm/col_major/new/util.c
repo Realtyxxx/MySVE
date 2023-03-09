@@ -10,7 +10,8 @@
 void randomInit(MATRIX_TYPE data, int size) {
   long i;
   for (i = 0; i < size; ++i) {
-    data[i] = (rand() / (float)RAND_MAX) * 10.1f;
+    // data[i] = (rand() * 10.f) / (float)RAND_MAX;
+    data[i] = rand() / RAND_MAX;
   }
 }
 
@@ -97,8 +98,9 @@ void printFloat(void* A, int row, int col, int lda, const char* arg) {
 
 void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) {
   printf("Listing first %d Differences > %.6f...\n", iListLength, fListTol);
-  long i, j, k;
-  int  error_count = 0;
+  long   i, j, k;
+  int    error_count = 0;
+  double error_sum   = 0.f;
 
   for (i = 0; i < width; i++) {
     if (error_count < iListLength) {
@@ -110,6 +112,7 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
       float fDiff = fabs(data1[k] - data2[k]);
 
       if (fDiff > fListTol) {
+        error_sum += fDiff;
         if (error_count < iListLength) {
           printf("    Loc(%d,%d)\tCPU=%.5f\tBLAS=%.5f\tDiff=%.6f\n", (int)j, (int)i, data1[k], data2[k], fDiff);
         }
@@ -119,7 +122,7 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
     }
   }
 
-  printf(" \n  Total Errors = %d\n", error_count);
+  printf(" \n  Total Error count = %d\nError Sum  = %lf\n", error_count, error_sum);
 }
 
 float* malloc_aligned(int m, int n, int size) {

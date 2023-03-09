@@ -27,13 +27,13 @@
 #define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
 
 // define block_size
-#define MC 32
-#define NC 320
+#define MC 256
+#define NC 32
 #define KC 32
 
-#define MR 32
+#define MR 128
 #define NR 8
-#define SIMD_ALIGN_SIZE 32
+#define SIMD_ALIGN_SIZE 64
 
 typedef float      VALUE_TYPE;
 typedef VALUE_TYPE* VALUE_PTR;

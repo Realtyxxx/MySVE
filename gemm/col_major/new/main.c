@@ -81,8 +81,10 @@ int main(int argc, char **argv) {
   /* prepare MATRIX and init it; */
   MATRIX_TYPE a     = (MATRIX_TYPE)malloc(a_length * sizeof(VALUE_TYPE));
   MATRIX_TYPE b     = (MATRIX_TYPE)malloc(b_length * sizeof(VALUE_TYPE));
-  MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
-  MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
+  // MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
+  MATRIX_TYPE c     = (MATRIX_TYPE)malloc_aligned(c_length ,1, sizeof(VALUE_TYPE));
+  MATRIX_TYPE c_ref     = (MATRIX_TYPE)malloc_aligned(c_length ,1, sizeof(VALUE_TYPE));
+  // MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
   randomInit(a, a_length);
   randomInit(b, b_length);
