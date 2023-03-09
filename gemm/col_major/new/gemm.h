@@ -27,15 +27,19 @@
 #define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
 
 // define block_size
-#define mc 32
-#define kc 64
-#define nc 64
+#define MC 32
+#define NC 320
+#define KC 32
 
-typedef double      VALUE_TYPE;
+#define MR 32
+#define NR 8
+#define SIMD_ALIGN_SIZE 32
+
+typedef float      VALUE_TYPE;
 typedef VALUE_TYPE* VALUE_PTR;
 typedef int         DIM_TYPE;
 typedef DIM_TYPE*   DIM_PTR;
-typedef VALUE_TYPE* MATRIX_TYPE;
+typedef float* MATRIX_TYPE;
 
 // clang-format off
 typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;
@@ -59,11 +63,15 @@ void printFloat(void* A, int row, int col, int lda, const char* arg);
 
 void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) ;
 
-void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
-                     VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, const VALUE_PTR restrict beta);
+void sgemm_armv8a_sve_asm_16x8(int k0, float* restrict alpha, float* restrict a, float* restrict b,
+                                   float* restrict beta, float* restrict c, int rs_c0, int cs_c0, void* a_next,
+                                   void* b_next);
 
-void add_dot_8x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb,
-                     VALUE_PTR restrict alpha, MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta);
+void sgemm_armv8a_sve_asm_2vx8(int k0, float* restrict alpha, float* restrict a, float* restrict b,
+                                   float* restrict beta, float* restrict c, int rs_c0, int cs_c0, void* a_next,
+                                   void* b_next);
+
+float *malloc_aligned(int m, int n, int size);
 
 void naive_gemm(const CBLAS_ORDER ordej,
                 const CBLAS_TRANSPOSE Atrans,
@@ -76,21 +84,17 @@ void naive_gemm(const CBLAS_ORDER ordej,
                 MATRIX_TYPE c, const int ldc);
 
 
-void my_dgemm(const CBLAS_ORDER order,
-              const CBLAS_TRANSPOSE Atrans,
-              const CBLAS_TRANSPOSE Btrans,
-              const int M, const int N, const int K,
-              const VALUE_TYPE alpha,
-              const MATRIX_TYPE a, const int lda,
-              const MATRIX_TYPE b, const int ldb,
-              const VALUE_TYPE beta,
-              MATRIX_TYPE c, const int ldc);
+void sgemm(const int M, const int N, const int K,
+           const VALUE_TYPE alpha,
+           const MATRIX_TYPE a, const int lda,
+           const MATRIX_TYPE b, const int ldb,
+           const VALUE_TYPE beta,
+           MATRIX_TYPE c, const int ldc);
 
-void my_dgemm_inside(const int M, const int N, const int K,
+void my_dgemm_Macro(const int M, const int N, const int K,
                      const VALUE_TYPE alpha,
                      const MATRIX_TYPE a, const int lda,
                      const MATRIX_TYPE b, const int ldb,
                      const VALUE_TYPE beta,
-                     MATRIX_TYPE c, const int ldc,
-                     bool first_time);
+                     MATRIX_TYPE c, const int ldc);
 //clang-format on

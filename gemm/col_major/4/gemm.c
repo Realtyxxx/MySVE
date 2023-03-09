@@ -27,21 +27,15 @@ void naive_gemm(const CBLAS_ORDER order,
   memset(T, 0, M * N * sizeof(VALUE_TYPE));
   int i, j, k;
   for (j = 0; j < N; j++) {
-    for (i = 0; i < M; i++) {
-      C(i, j) = beta * C(i, j);
-    }
+    for (i = 0; i < M; i++) { C(i, j) = beta * C(i, j); }
   }
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
-      for (k = 0; k < K; k++) {
-        T[i + j * ldc] += A(i, k) * B(k, j);
-      }
+      for (k = 0; k < K; k++) { T[i + j * ldc] += A(i, k) * B(k, j); }
     }
   }
   for (j = 0; j < N; j++) {
-    for (i = 0; i < M; i++) {
-      C(i, j) += alpha * T[i + j * ldc];
-    }
+    for (i = 0; i < M; i++) { C(i, j) += alpha * T[i + j * ldc]; }
   }
   free(T);
 }
@@ -99,7 +93,8 @@ void my_dgemm_inside(const int M, const int N, const int K,
   //  Loop over the columns of C, unrolled by 4
   for (j = 0; j < N; j += 4) {
 
-    if (first_time) PackMatrixB(K, &B(0, j), ldb, &packedB[j * K]);
+    if (first_time)
+      PackMatrixB(K, &B(0, j), ldb, &packedB[j * K]);
 
     // mr is 4
     for (i = 0; i < M; i += 4) {
@@ -108,7 +103,8 @@ void my_dgemm_inside(const int M, const int N, const int K,
       // Update C( i,j ), C( i,j+1 ), C( i,j+2 ), and C( i,j+3 )
       // in one routine (four inner products)
 
-      if (j == 0) PackMatrixA(K, &A(i, 0), lda, &packedA[i * K]);
+      if (j == 0)
+        PackMatrixA(K, &A(i, 0), lda, &packedA[i * K]);
 
       // in register computation
       // C (mr(4) * nr(4)) = A (mr * kc) * B (kc  * nr) * alpha + beta * C;
@@ -139,14 +135,14 @@ void my_dgemm(const CBLAS_ORDER order,
   }
 
   // iterator
-  int i;   // iterate M by stride of mc
-  int p;   // iterate  K by stride of kc
-  int jc;  // jc : nc iterate N by stride of jc
+  int jc;  //* jc : nc iterate N by stride of jc
+  int p;   //* iterate  K by stride of kc
+  int i;   //* iterate M by stride of mc
 
   // size value
-  int ib;  // value gets by iterator i ib : mc
-  int pb;  // value gets by iterate p pb : kc
   int qb;  // value gets by iterator jc qb : nc
+  int pb;  // value gets by iterator p  pb : kc
+  int ib;  // value gets by iterator i  ib : mc
 
   for (jc = 0; jc < N; jc += nc) { /* iterate nc */
     qb = min(N - jc, nc);

@@ -12,7 +12,7 @@
 
 // @msg: in register computation C (mr(4) * nr(4)) + A (mr * kc) * B (kc  * nr) * alpha + beta * C; * @param {int} k
 void add_dot_4x4_sve(int k, MATRIX_TYPE restrict a, int lda, MATRIX_TYPE restrict b, int ldb, VALUE_PTR restrict alpha,
-                     MATRIX_TYPE restrict c, int ldc, VALUE_PTR restrict beta) {
+                     MATRIX_TYPE restrict c, int ldc, const VALUE_PTR restrict beta) {
   /*
    *       So, this routine computes a 4x4 block of matrix A
    *
