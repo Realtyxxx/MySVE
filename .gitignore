@@ -3,3 +3,4 @@ qemu*
 main
 *.log
 *.i
+*.csv
