@@ -8,8 +8,8 @@ GCC=${GCC_PATH}/bin/gcc
 CFLAGS=  -Wall -march=armv8.2-a+sve -O2 -I./  
 # CXXFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  
 LDFLAGS=
-LDFLAGS+= -fopenmp
-CFLAGS+= -fopenmp -DMULTI_THREADS=1
+# LDFLAGS+= -fopenmp
+# CFLAGS+= -fopenmp -DMULTI_THREADS=1
 
 
 COMPILE.c=$(GCC) $(CFLAGS) -c

@@ -126,7 +126,11 @@ void sgemm(const int M, const int N, const int K,
   // beta
   float _beta;
 
+#if MULTI_THREADS
   int total_threads = 16;
+#else
+  int total_threads = 1;
+#endif
 
   packA = malloc_aligned(KC, (MC + 1) * total_threads, sizeof(float));
   packB = malloc_aligned(KC, (NC + 1), sizeof(float));
@@ -142,15 +146,23 @@ void sgemm(const int M, const int N, const int K,
       pb = min(K - pc, KC);
 
 // TODO: here need to pack B
+#if MULTI_THREADS
 #pragma omp parallel for num_threads(total_threads) private(j)
+#endif
       for (j = 0; j < jb; j += NR) {
         packB_kcxnc_d(min(jb - j, NR), pb, &b[pc], K, jc + j, &packB[j * pb]);
       }
 
+#if MULTI_THREADS
 #pragma omp parallel for num_threads(total_threads) private(ic, ib, i)
+#endif
       for (ic = 0; ic < M; ic += MC) { /* iterate mc, and A block maked */
+#if MULTI_THREADS
         int tid = omp_get_thread_num();
-        ib      = min(M - ic, MC);
+#else
+        int tid = 0;
+#endif
+        ib = min(M - ic, MC);
 
         for (i = 0; i < ib; i += MR) {
           packA_mcxkc_d(min(ib - i, MR), pb, &a[pc * lda], M, ic + i, &packA[tid * MC * pb + i * pb]);
