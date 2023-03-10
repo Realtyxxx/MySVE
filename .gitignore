@@ -1,4 +1,4 @@
-**/*.o
-**/qemu*
-**/main
-**/*.i
+*.o
+qemu*
+main
+*.i
