@@ -49,7 +49,10 @@ void naive_gemm(const CBLAS_ORDER order,
   memset(T, 0, M * N * sizeof(VALUE_TYPE));
   int i, j, k;
 #if MULTI_THREADS
-#pragma omp parallel for private(i)
+  printf("MULTI_THREADS\n");
+#endif
+#if MULTI_THREADS
+#pragma omp parallel for private(i, j)
 #endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
@@ -57,7 +60,7 @@ void naive_gemm(const CBLAS_ORDER order,
     }
   }
 #if MULTI_THREADS
-#pragma omp parallel for private(i, k)
+#pragma omp parallel for private(j, i, k)
 #endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {
@@ -67,7 +70,7 @@ void naive_gemm(const CBLAS_ORDER order,
     }
   }
 #if MULTI_THREADS
-#pragma omp parallel for private(i)
+#pragma omp parallel for private(j, i)
 #endif
   for (j = 0; j < N; j++) {
     for (i = 0; i < M; i++) {

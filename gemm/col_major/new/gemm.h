@@ -29,7 +29,7 @@
 // define block_size
 #define MC 256
 #define NC 32
-#define KC 32
+#define KC 256
 
 #define MR 128
 #define NR 8
