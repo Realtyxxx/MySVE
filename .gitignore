@@ -1,4 +1,5 @@
 *.o
 qemu*
 main
+*.log
 *.i

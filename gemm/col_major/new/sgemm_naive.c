@@ -49,7 +49,7 @@ void naive_gemm(const CBLAS_ORDER order,
   memset(T, 0, M * N * sizeof(VALUE_TYPE));
   int i, j, k;
 #if MULTI_THREADS
-  printf("MULTI_THREADS\n");
+  // printf("MULTI_THREADS\n");
 #endif
 #if MULTI_THREADS
 #pragma omp parallel for private(i, j)

@@ -101,7 +101,7 @@ void sgemm(const int M, const int N, const int K,
            const MATRIX_TYPE a, const int lda,
            const MATRIX_TYPE b, const int ldb,
            const VALUE_TYPE beta,
-           MATRIX_TYPE c, const int ldc)
+           MATRIX_TYPE c, const int ldc, int MC, int NC, int KC)
 // clang-format on
 {
 

@@ -45,9 +45,10 @@ int main(int argc, char **argv) {
   int        argM;
   int        argN;
   int        argK;
+  int        mc, nc, kc;
   VALUE_TYPE alpha;
   VALUE_TYPE beta;
-  if (argc < 7) {
+  if (argc < 10) {
     printf(
         "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
             USE default ./main 4 4 4 1 0 1");
@@ -63,7 +64,10 @@ int main(int argc, char **argv) {
     argK  = atoi(argv[3]);
     alpha = atof(argv[4]);
     beta  = atof(argv[5]);
-    P     = (bool)(atoi(argv[6]));
+    mc    = atoi(argv[6]);
+    nc    = atoi(argv[7]);
+    kc    = atoi(argv[8]);
+    P     = (bool)(atoi(argv[9]));
   }
   // printf("M == %d, N == %d, K == %d\nMC == %d, NC == %d, KC == %d\nMR = %d, NR = %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, MC, NC, KC, MR, NR, alpha, beta);
   int a_length = argM * argK;
@@ -106,7 +110,7 @@ int main(int argc, char **argv) {
 
   /* my gemm operation */
   tic();
-  sgemm(argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM);
+  sgemm(argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM, mc, nc, kc);
   time2 = toc();
 
   /* print the matrix after operation */
@@ -119,7 +123,8 @@ int main(int argc, char **argv) {
   // printf("my : %lf\n", time2);
 
   // printDiff(c_ref, c, argM, argN, 0, 1e-5);
-  printf("(compute / time ) my : %.3f,\t\t\t naive : %.3f\n", (2 * argM * argN * argK) * 1.f / time2, (2 * argM * argN * argK) * 1.f / time1);
+  // printf("(compute / time ) my : %.3f,\t\t\t naive : %.3f\n", (2 * argM * argN * argK) * 1.f / time2, (2 * argM * argN * argK) * 1.f / time1);
+  printf(" %.6f,\t\t\t  %.6f\n", (2 * argM * argN * argK) * 1.f / time2 / 1e9, (2 * argM * argN * argK) * 1.f / time1 / 1e9);
 
   /* free */
   free(a);

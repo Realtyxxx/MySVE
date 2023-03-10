@@ -27,9 +27,9 @@
 #define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
 
 // define block_size
-#define MC 256
-#define NC 32
-#define KC 256
+// #define MC 256
+// #define NC 32
+// #define KC 256
 
 #define MR 128
 #define NR 8
@@ -89,7 +89,7 @@ void sgemm(const int M, const int N, const int K,
            const MATRIX_TYPE a, const int lda,
            const MATRIX_TYPE b, const int ldb,
            const VALUE_TYPE beta,
-           MATRIX_TYPE c, const int ldc);
+           MATRIX_TYPE c, const int ldc, int MC, int NC, int KC);
 
 void my_dgemm_Macro(const int M, const int N, const int K,
                      const VALUE_TYPE alpha,
