@@ -18,7 +18,9 @@
 static struct timeval start;
 static struct timeval end;
 
-void tic(void) { gettimeofday(&start, NULL); }
+void tic(void) {
+  gettimeofday(&start, NULL);
+}
 
 double toc(void) {
   gettimeofday(&end, NULL);
@@ -52,16 +54,18 @@ int main(int argc, char **argv) {
     printf(
         "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
             USE default ./main 4 4 4 1 0 1");
-    P     = true;
-    argM  = 4;
-    argN  = 4;
-    argK  = 4;
-    alpha = 1.0f;
-    beta  = 1;
+    return 1;
+    // P     = true;
+    // argM  = 4;
+    // argN  = 4;
+    // argK  = 4;
+    // alpha = 1.0f;
+    // beta  = 1;
   } else {
-    argM  = atoi(argv[1]);
-    argN  = atoi(argv[2]);
-    argK  = atoi(argv[3]);
+    argM = atoi(argv[1]);
+    argN = atoi(argv[2]);
+    argK = atoi(argv[3]);
+
     alpha = atof(argv[4]);
     beta  = atof(argv[5]);
     mc    = atoi(argv[6]);
@@ -69,7 +73,8 @@ int main(int argc, char **argv) {
     kc    = atoi(argv[8]);
     P     = (bool)(atoi(argv[9]));
   }
-  // printf("M == %d, N == %d, K == %d\nMC == %d, NC == %d, KC == %d\nMR = %d, NR = %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, MC, NC, KC, MR, NR, alpha, beta);
+  // printf("M == %d, N == %d, K == %d\nMC == %d, NC == %d, KC == %d\nMR = %d, NR = %d\nalpha == %lf, beta == %lf\n",
+  // argM, argN, argK, MC, NC, KC, MR, NR, alpha, beta);
   int a_length = argM * argK;
   int b_length = argK * argN;
   int c_length = argM * argN;
@@ -79,14 +84,16 @@ int main(int argc, char **argv) {
   MATRIX_TYPE a = (MATRIX_TYPE)malloc(a_length * sizeof(VALUE_TYPE));
   MATRIX_TYPE b = (MATRIX_TYPE)malloc(b_length * sizeof(VALUE_TYPE));
   // MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
+  // MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   MATRIX_TYPE c     = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
   MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
-  // MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
   randomInit(a, a_length);
   randomInit(b, b_length);
+
   // InstantInit(a, a_length, 1.f);
   // InstantInit(b, b_length, 1.f);
+
   InstantInit(c, c_length, 9.f);
   InstantInit(c_ref, c_length, 9.f);
 
@@ -104,6 +111,7 @@ int main(int argc, char **argv) {
   CBLAS_ORDER     store_order = CblasColMajor;
   CBLAS_TRANSPOSE Atrans      = CblasNoTrans;
   CBLAS_TRANSPOSE Btrans      = CblasNoTrans;
+
   tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
   time1 = toc();
@@ -123,8 +131,11 @@ int main(int argc, char **argv) {
   // printf("my : %lf\n", time2);
 
   // printDiff(c_ref, c, argM, argN, 0, 1e-5);
-  // printf("(compute / time ) my : %.3f,\t\t\t naive : %.3f\n", (2 * argM * argN * argK) * 1.f / time2, (2 * argM * argN * argK) * 1.f / time1);
-  printf(" %.6f,\t\t\t  %.6f\n", (2 * argM * argN * argK) * 1.f / time2 / 1e9, (2 * argM * argN * argK) * 1.f / time1 / 1e9);
+  // printf("(compute / time ) my : %.3f,\t\t\t naive : %.3f\n", (2 * argM * argN * argK) * 1.f / time2, (2 * argM *
+  // argN * argK) * 1.f / time1);
+
+  printf(" %.6f,\t\t\t  %.6f\n", (2 * argM * argN * argK) * 1.f / time2 / 1e9,
+         (2 * argM * argN * argK) * 1.f / time1 / 1e9);
 
   /* free */
   free(a);

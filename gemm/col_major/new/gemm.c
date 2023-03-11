@@ -5,7 +5,7 @@
 // clang-format off
 
 
-void packA_mcxkc_d(  // ? 实际上打包 mr * kc , 外部循环打包了 mc * kc
+inline void packA_mcxkc_d(  // ? 实际上打包 mr * kc , 外部循环打包了 mc * kc
     int m, int k, float *XA, int ldXA,
     int    offseta,  // ? 从上倒下， 第 ic 个大块 的
     float *packA) {
@@ -33,7 +33,7 @@ void packA_mcxkc_d(  // ? 实际上打包 mr * kc , 外部循环打包了 mc * k
  * --------------------------------------------------------------------------
  */
 
-void packB_kcxnc_d(  // ? 实际上只是打包了 kc * nr
+inline void packB_kcxnc_d(  // ? 实际上只是打包了 kc * nr
     int n, int k, float *XB,
     int ldXB,  // ldXB is the original k
     int offsetb, float *packB) {
@@ -59,7 +59,7 @@ void packB_kcxnc_d(  // ? 实际上只是打包了 kc * nr
  */
 
 // clang-format off
-void sgemm_Macro(const int M, const int N, const int K,
+inline void sgemm_Macro(const int M, const int N, const int K,
                      const VALUE_TYPE alpha,
                      const MATRIX_TYPE packA, const int lda,
                      const MATRIX_TYPE packB, const int ldb,
