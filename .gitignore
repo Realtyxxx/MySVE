@@ -1,0 +1,5 @@
+*.log
+*.csv
+*.i
+.DS_Store
+a.out
