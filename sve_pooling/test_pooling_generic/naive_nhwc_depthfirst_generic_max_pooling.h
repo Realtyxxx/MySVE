@@ -1,0 +1,15 @@
+template <class data_type>
+void naive_nhwc_depthfirst_generic_max_pooling(const void* const input,
+                                               void* const       output,
+                                               unsigned int      n_batches,
+                                               unsigned int      n_channels,
+                                               unsigned int      input_rows,
+                                               unsigned int      input_cols,
+                                               unsigned int      stride_rows,
+                                               unsigned int      stride_cols,
+                                               unsigned int      window_rows,
+                                               unsigned int      window_cols,
+                                               unsigned int      pad_up     = 0,
+                                               unsigned int      pad_bottom = 0,
+                                               unsigned int      pad_left   = 0,
+                                               unsigned int      pad_right  = 0);

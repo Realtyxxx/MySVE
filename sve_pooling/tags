@@ -1,0 +1,131 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AVERAGE	src/pooling_common.h	/^  AVERAGE,$/;"	m	class:pooling::PoolingType
+C	test_pooling_generic/main.cc	32;"	d	file:
+C	test_pooling_generic/test.cc	36;"	d	file:
+C	test_pooling_kernel/main.cc	24;"	d	file:
+CC	test_pooling_generic/makefile	/^CC = g++$/;"	m
+CC	test_pooling_kernel/makefile	/^CC = g++$/;"	m
+DEFAULT	src/pooling_common.h	/^  DEFAULT,$/;"	m	class:pooling::PoolingMethod
+DEPTHFIRST	src/pooling_common.h	/^  DEPTHFIRST,$/;"	m	class:pooling::PoolingMethod
+H	test_pooling_generic/main.cc	30;"	d	file:
+H	test_pooling_generic/test.cc	34;"	d	file:
+H	test_pooling_kernel/main.cc	22;"	d	file:
+HWC	test_pooling_kernel/main.cc	19;"	d	file:
+MAX	src/pooling_common.h	/^  MAX,$/;"	m	class:pooling::PoolingType
+N	test_pooling_generic/main.cc	29;"	d	file:
+N	test_pooling_generic/test.cc	33;"	d	file:
+NAIVE	test_pooling_generic/main.cc	13;"	d	file:
+NHWC	test_pooling_generic/test.cc	30;"	d	file:
+PLANAR	src/pooling_common.h	/^  PLANAR,$/;"	m	class:pooling::PoolingMethod
+PaddingValues	src/pooling_common.h	/^struct PaddingValues {$/;"	s	namespace:pooling
+PoolingArgs	src/pooling_generic.h	/^  PoolingArgs($/;"	f	struct:PoolingArgs
+PoolingArgs	src/pooling_generic.h	/^struct PoolingArgs {$/;"	s
+PoolingCommon	src/pooling_generic.h	/^  PoolingCommon(const PoolingArgs &args, bool generic = true)$/;"	f	class:PoolingCommon
+PoolingCommon	src/pooling_generic.h	/^class PoolingCommon {  \/\/TYX_LEARNING:pooling op2kernel | kernel class$/;"	c
+PoolingConfig	src/pooling_common.h	/^  PoolingConfig(){};$/;"	f	struct:pooling::PoolingConfig
+PoolingConfig	src/pooling_common.h	/^  PoolingConfig(PoolingMethod method)$/;"	f	struct:pooling::PoolingConfig
+PoolingConfig	src/pooling_common.h	/^struct PoolingConfig {$/;"	s	namespace:pooling
+PoolingMethod	src/pooling_common.h	/^enum class PoolingMethod {$/;"	c	namespace:pooling
+PoolingStrategy	src/pooling_generic.h	/^  PoolingStrategy(const PoolingArgs &args, const bool generic) {$/;"	f	class:PoolingStrategy
+PoolingStrategy	src/pooling_generic.h	/^class PoolingStrategy {$/;"	c
+PoolingStride	src/pooling_common.h	/^struct PoolingStride {$/;"	s	namespace:pooling
+PoolingType	src/pooling_common.h	/^enum class PoolingType {$/;"	c	namespace:pooling
+PoolingWindow	src/pooling_common.h	/^struct PoolingWindow {$/;"	s	namespace:pooling
+TensorSpec	src/pooling_generic.h	/^  TensorSpec(T ptr, size_t ld_row, size_t ld_col)$/;"	f	struct:TensorSpec
+TensorSpec	src/pooling_generic.h	/^struct TensorSpec {$/;"	s
+W	test_pooling_generic/main.cc	31;"	d	file:
+W	test_pooling_generic/test.cc	35;"	d	file:
+W	test_pooling_kernel/main.cc	23;"	d	file:
+base	src/pooling_generic.h	/^  T      base;$/;"	m	struct:TensorSpec
+bottom	src/pooling_common.h	/^  unsigned int left, top, right, bottom;$/;"	m	struct:pooling::PaddingValues
+cols	src/pooling_common.h	/^  unsigned int rows, cols;$/;"	m	struct:pooling::PoolingStride
+cols	src/pooling_common.h	/^  unsigned int rows, cols;$/;"	m	struct:pooling::PoolingWindow
+compute_row_padded_tile_row	src/nhwc_depthfirst_pooling_generic.cc	/^void PoolingCommon<TInput, TOutput>::compute_row_padded_tile_row($/;"	f	class:PoolingCommon
+compute_tile_padded	src/nhwc_depthfirst_pooling_generic.cc	/^void PoolingCommon<TInput, TOutput>::compute_tile_padded($/;"	f	class:PoolingCommon
+compute_tiles_unpadded	src/nhwc_depthfirst_pooling_generic.cc	/^void PoolingCommon<TInput, TOutput>::compute_tiles_unpadded($/;"	f	class:PoolingCommon
+config	src/pooling_generic.h	/^  const PoolingConfig *config;  \/\/ unused$/;"	m	struct:PoolingArgs
+copy_initialize	test_pooling_generic/main.cc	/^void copy_initialize(float *const out, float *const in, int size) {$/;"	f
+copy_initialize	test_pooling_generic/test.cc	/^void copy_initialize(float *const out, float *const in, int size) {$/;"	f
+copy_initialize	test_pooling_kernel/main.cc	/^void copy_initialize(float *const out, float *const in, int size) {$/;"	f
+end	test_pooling_generic/main.cc	/^static struct timeval end;$/;"	v	typeref:struct:timeval	file:
+end	test_pooling_generic/test.cc	/^static struct timeval end;$/;"	v	typeref:struct:timeval	file:
+end	test_pooling_kernel/main.cc	/^static struct timeval end;$/;"	v	typeref:struct:timeval	file:
+exclude_padding	src/pooling_generic.h	/^  bool          exclude_padding;$/;"	m	struct:PoolingArgs
+execute	src/pooling_generic.h	/^  void execute($/;"	f	class:PoolingCommon
+execute_internal	src/nhwc_depthfirst_pooling_generic.cc	/^void PoolingCommon<TInput, TOutput>::execute_internal($/;"	f	class:PoolingCommon
+filter	src/pooling_common.h	/^  std::string   filter = "";$/;"	m	struct:pooling::PoolingConfig
+flags	test_pooling_generic/makefile	/^flags =   -I..\/src\/nhwc_depthfirst_kernel -I..\/src\/ -I.\/$/;"	m
+flags	test_pooling_kernel/makefile	/^flags =  -march=armv8.2-a+sve -I..\/src\/nhwc_depthfirst_kernel$/;"	m
+get_input_cols	src/pooling_generic.h	/^  int get_input_cols() const { return input_cols; }$/;"	f	class:PoolingStrategy
+get_input_rows	src/pooling_generic.h	/^  int get_input_rows() const { return input_rows; }$/;"	f	class:PoolingStrategy
+get_output_cols	src/pooling_generic.h	/^  int get_output_cols() const { return output_cols; }$/;"	f	class:PoolingStrategy
+get_output_rows	src/pooling_generic.h	/^  int get_output_rows() const { return output_rows; }$/;"	f	class:PoolingStrategy
+h	test_pooling_generic/main.cc	35;"	d	file:
+h	test_pooling_generic/test.cc	39;"	d	file:
+h	test_pooling_kernel/main.cc	27;"	d	file:
+input_cols	src/pooling_generic.h	/^  unsigned int n_batches, input_rows, input_cols, n_channels;$/;"	m	struct:PoolingArgs
+input_rows	src/pooling_generic.h	/^  unsigned int n_batches, input_rows, input_cols, n_channels;$/;"	m	struct:PoolingArgs
+ld_col	src/pooling_generic.h	/^  size_t ld_row, ld_col;$/;"	m	struct:TensorSpec
+ld_row	src/pooling_generic.h	/^  size_t ld_row, ld_col;$/;"	m	struct:TensorSpec
+left	src/pooling_common.h	/^  unsigned int left, top, right, bottom;$/;"	m	struct:pooling::PaddingValues
+m_args	src/pooling_generic.h	/^  const PoolingArgs m_args;$/;"	m	class:PoolingCommon
+m_strat	src/pooling_generic.h	/^  PoolingStrategy *m_strat;$/;"	m	class:PoolingCommon
+main	test.cc	/^int main() {$/;"	f
+main	test_pooling_generic/main.cc	/^int main(const int argc, char **argv) {$/;"	f
+main	test_pooling_generic/malloc.cc	/^int main() {$/;"	f
+main	test_pooling_generic/test.cc	/^int main(const int argc, char **argv) {$/;"	f
+main	test_pooling_kernel/main.cc	/^int main(const int argc, char **argv) {$/;"	f
+method	src/pooling_common.h	/^  PoolingMethod method = PoolingMethod::DEFAULT;$/;"	m	struct:pooling::PoolingConfig
+n_batches	src/pooling_generic.h	/^  unsigned int n_batches, input_rows, input_cols, n_channels;$/;"	m	struct:PoolingArgs
+n_channels	src/pooling_generic.h	/^  unsigned int n_batches, input_rows, input_cols, n_channels;$/;"	m	struct:PoolingArgs
+naive_fp32_nhwc_max_generic_depthfirst_impl	src/nhwc_depthfirst_kernel/nhwc_depthfirst_pooling_naive_kernel.cc	/^void naive_fp32_nhwc_max_generic_depthfirst_impl(  \/\/ TYX_NOTES: pooling op2kerneli generic depthfirst impl max$/;"	f
+naive_nhwc_depthfirst_generic_max_pooling	test_pooling_generic/naive_nhwc_depthfirst_generic_max_pooling.cc	/^void naive_nhwc_depthfirst_generic_max_pooling(const void* const input,$/;"	f
+output_cols	src/pooling_generic.h	/^  unsigned int output_rows, output_cols;$/;"	m	struct:PoolingArgs
+output_rows	src/pooling_generic.h	/^  unsigned int output_rows, output_cols;$/;"	m	struct:PoolingArgs
+pad_bottom	test_pooling_generic/main.cc	42;"	d	file:
+pad_bottom	test_pooling_generic/test.cc	46;"	d	file:
+pad_left	test_pooling_generic/main.cc	40;"	d	file:
+pad_left	test_pooling_generic/test.cc	44;"	d	file:
+pad_right	test_pooling_generic/main.cc	41;"	d	file:
+pad_right	test_pooling_generic/test.cc	45;"	d	file:
+pad_up	test_pooling_generic/main.cc	43;"	d	file:
+pad_up	test_pooling_generic/test.cc	47;"	d	file:
+padding	src/pooling_generic.h	/^  PaddingValues padding;$/;"	m	struct:PoolingArgs
+pool_stride	src/pooling_generic.h	/^  PoolingStride pool_stride;$/;"	m	struct:PoolingArgs
+pool_type	src/pooling_generic.h	/^  PoolingType   pool_type;$/;"	m	struct:PoolingArgs
+pool_window	src/pooling_generic.h	/^  PoolingWindow pool_window;$/;"	m	struct:PoolingArgs
+pooling	src/pooling_common.h	/^namespace pooling {$/;"	n
+print	test_pooling_generic/main.cc	/^void print(float *in, int size, int assign) {$/;"	f
+print	test_pooling_generic/test.cc	/^void print(float *in, int size, int assign) {$/;"	f
+print	test_pooling_kernel/main.cc	/^void print(float *in, int size, int assign = 0) {$/;"	f
+random_initialize	test_pooling_generic/main.cc	/^void random_initialize(float *const in, int size) {$/;"	f
+random_initialize	test_pooling_generic/test.cc	/^void random_initialize(float *const in, int size) {$/;"	f
+random_initialize	test_pooling_kernel/main.cc	/^void random_initialize(float *const in, int size) {$/;"	f
+right	src/pooling_common.h	/^  unsigned int left, top, right, bottom;$/;"	m	struct:pooling::PaddingValues
+roundup	src/pooling_common.h	/^inline T roundup(const T a, const T b) {$/;"	f	namespace:pooling
+rows	src/pooling_common.h	/^  unsigned int rows, cols;$/;"	m	struct:pooling::PoolingStride
+rows	src/pooling_common.h	/^  unsigned int rows, cols;$/;"	m	struct:pooling::PoolingWindow
+start	test_pooling_generic/main.cc	/^static struct timeval start;$/;"	v	typeref:struct:timeval	file:
+start	test_pooling_generic/test.cc	/^static struct timeval start;$/;"	v	typeref:struct:timeval	file:
+start	test_pooling_kernel/main.cc	/^static struct timeval start;$/;"	v	typeref:struct:timeval	file:
+stride_col	test_pooling_generic/main.cc	38;"	d	file:
+stride_col	test_pooling_generic/test.cc	42;"	d	file:
+stride_row	test_pooling_generic/main.cc	37;"	d	file:
+stride_row	test_pooling_generic/test.cc	41;"	d	file:
+sve_fp32_nhwc_max_generic_depthfirst_impl	src/nhwc_depthfirst_kernel/nhwc_depthfirst_pooling_nhwc_max_generic_kernel.cc	/^void sve_fp32_nhwc_max_generic_depthfirst_impl(  \/\/ TYX_NOTES: pooling op2kerneli generic depthfirst impl max$/;"	f
+tic	test_pooling_generic/main.cc	/^int tic(void) { return gettimeofday(&start, NULL); }$/;"	f
+tic	test_pooling_generic/test.cc	/^int tic(void) { return gettimeofday(&start, NULL); }$/;"	f
+tic	test_pooling_kernel/main.cc	/^int tic(void) { return gettimeofday(&start, NULL); }$/;"	f
+toc	test_pooling_generic/main.cc	/^double toc(void) {$/;"	f
+toc	test_pooling_generic/test.cc	/^double toc(void) {$/;"	f
+toc	test_pooling_kernel/main.cc	/^double toc(void) {$/;"	f
+top	src/pooling_common.h	/^  unsigned int left, top, right, bottom;$/;"	m	struct:pooling::PaddingValues
+w	test_pooling_generic/main.cc	36;"	d	file:
+w	test_pooling_generic/test.cc	40;"	d	file:
+w	test_pooling_kernel/main.cc	28;"	d	file:
+~PoolingCommon	src/pooling_generic.h	/^  ~PoolingCommon() {$/;"	f	class:PoolingCommon

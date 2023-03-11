@@ -1,0 +1,2 @@
+# imple the Batch normalization
+
