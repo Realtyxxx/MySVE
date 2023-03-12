@@ -115,9 +115,19 @@ void batchnorm_sve_nhwc(int ndim, int *dims, float *src, float *dst, float *mean
 
       // Calculate denominator
       const svfloat32_t tmp         = svadd_f32_z(pg, var_vec, epsilon_vec);
-      svfloat32_t       denominator = svrsqrte_f32(tmp);
-      denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
-      denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
+      // svfloat32_t       denominator = svrsqrte_f32(tmp);
+      // denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
+      // denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
+#if 1
+    svfloat32_t sqrt_vec  = svsqrt_f32_z(pg, tmp);
+    svfloat32_t denominator = svdiv_f32_z(pg, const_1, sqrt_vec);
+#else
+    svfloat32_t denominator = svrsqrte_f32(tmp);
+    denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
+    denominator = svmul_f32_z(pg, svrsqrts_f32(svmul_f32_z(pg, tmp, denominator), denominator), denominator);
+#endif
+
+
 
       // Calculate x bar
       const svfloat32_t numerator = svsub_f32_z(pg, svld1_f32(pg, input_ptr + x), mean_vec);

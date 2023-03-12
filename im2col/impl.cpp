@@ -5,6 +5,7 @@
 #warning "not using sve"
 #endif
 
+#include <string.h>
 #include <iostream>
 #include "args.h"
 
@@ -39,6 +40,7 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
   // stride = 1 then it could vectorize
   int channel_size   = image_hw.w * image_hw.h;
   int o_channel_size = o_image_hw.w * o_image_hw.h * kernel_hw.h * kernel_hw.w;
+  memset(dst, 0, o_image_hw.h * o_image_hw.w * sizeof(float));
 
   dtype *src_ptr = (dtype *)src;
   dtype *dst_ptr = (dtype *)dst;
@@ -67,16 +69,17 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
 #else
           CHECK(stride.w == 1);
           // vectorize at the input col iteration
-          const auto all_true_pg = svptrue_b32();
-          int        i_offset    = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
-          int        o_offset    = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
-          int        left_offset = (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
-          int        right_offset =
+
+          int i_offset    = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
+          int o_offset    = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
+          int left_offset = (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
+          int right_offset =
               (kernel_hw.w - (kernel_col + 1) > pad.right ? kernel_hw.w - (kernel_col + 1) - pad.right : 0);
 
           int valid_len = image_hw.w - left_offset - right_offset;
 
           // printf("DEBUG: kernel_col : %d , offsets  :  %d , %d\n", kernel_col, left_offset, right_offset);
+          const auto all_true_pg = svptrue_b32();
 
           int              x        = 0;
           static const int vec_len  = svcntw();
@@ -86,10 +89,10 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
 
           // printf("DEBUG: kernel_col : %d , valid_len : %d , vec_len : %d\n", kernel_col, valid_len, vec_len);
 
-          svbool_t         pg0      = svwhilelt_b32(x, valid_len);
-          svbool_t         pg1      = svwhilelt_b32(x + vec_len, valid_len);
-          svbool_t         pg2      = svwhilelt_b32(x + vec_len * 2, valid_len);
-          svbool_t         pg3      = svwhilelt_b32(x + vec_len * 3, valid_len);
+          svbool_t pg0 = svwhilelt_b32(x, valid_len);
+          svbool_t pg1 = svwhilelt_b32(x + vec_len, valid_len);
+          svbool_t pg2 = svwhilelt_b32(x + vec_len * 2, valid_len);
+          svbool_t pg3 = svwhilelt_b32(x + vec_len * 3, valid_len);
 
           float *out_ptr = dst_offset + out_row * o_image_hw.w + o_offset;
           float *in_ptr  = src_ptr + input_row * image_hw.w + i_offset;
