@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "cblas.h"
 #include "gemm.h"
 
 // time count function
@@ -85,8 +86,9 @@ int main(int argc, char **argv) {
   MATRIX_TYPE b = (MATRIX_TYPE)malloc(b_length * sizeof(VALUE_TYPE));
   // MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   // MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
-  MATRIX_TYPE c     = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
-  MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
+  MATRIX_TYPE c      = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
+  MATRIX_TYPE c_ref  = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
+  MATRIX_TYPE c_blis = (MATRIX_TYPE)malloc_aligned(c_length, 1, sizeof(VALUE_TYPE));
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
   randomInit(a, a_length);
   randomInit(b, b_length);
@@ -96,6 +98,7 @@ int main(int argc, char **argv) {
 
   InstantInit(c, c_length, 9.f);
   InstantInit(c_ref, c_length, 9.f);
+  InstantInit(c_blis, c_length, 9.f);
 
   /* print the  matrix before operation */
   if (P) {
@@ -105,12 +108,12 @@ int main(int argc, char **argv) {
   /* printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:"); */
   /* printFloat(c, argM, argN, argM, "C  my ways:"); */
 
-  double time1, time2;
+  double time1, time2, time3;
 
   /* naive gemm operation */
-  CBLAS_ORDER     store_order = CblasColMajor;
-  CBLAS_TRANSPOSE Atrans      = CblasNoTrans;
-  CBLAS_TRANSPOSE Btrans      = CblasNoTrans;
+  BLAS_ORDER     store_order = blasColMajor;
+  BLAS_TRANSPOSE Atrans      = blasNoTrans;
+  BLAS_TRANSPOSE Btrans      = blasNoTrans;
 
   tic();
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
@@ -121,6 +124,11 @@ int main(int argc, char **argv) {
   sgemm(argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM, mc, nc, kc);
   time2 = toc();
 
+  /* blis gemm operation */
+  tic();
+  cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_blis, argM);
+  time3 = toc();
+
   /* print the matrix after operation */
   if (P) {
     printFloat(c_ref, argM, argN, argM, "C_ref  naive ways:");
@@ -130,12 +138,14 @@ int main(int argc, char **argv) {
   // printf("naive : %lf\n", time1);
   // printf("my : %lf\n", time2);
 
-  // printDiff(c_ref, c, argM, argN, 0, 1e-5);
+  printDiff(c_ref, c, argM, argN, 5, 1e-5);
+  printDiff(c_blis, c, argM, argN, 5, 1e-5);
+  printDiff(c_blis, c_ref, argM, argN, 5, 1e-5);
   // printf("(compute / time ) my : %.3f,\t\t\t naive : %.3f\n", (2 * argM * argN * argK) * 1.f / time2, (2 * argM *
   // argN * argK) * 1.f / time1);
 
-  printf(" %.6f,\t\t\t  %.6f\n", (2 * argM * argN * argK) * 1.f / time2 / 1e9,
-         (2 * argM * argN * argK) * 1.f / time1 / 1e9);
+  printf(" %.6f\t\t\t  %.6f\t\t\t  %.6f\n", (2.f * argM * argN * argK) / time2 / 1e9,
+         (2.f * argM * argN * argK) * 1.f / time1 / 1e9, (2.f * argM * argN * argK) * 1.f / time3 / 1e9);
 
   /* free */
   free(a);

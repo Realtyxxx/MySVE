@@ -42,14 +42,14 @@ typedef DIM_TYPE*   DIM_PTR;
 typedef float* MATRIX_TYPE;
 
 // clang-format off
-typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;
+typedef enum BLAS_ORDER { blasRowMajor = 101, blasColMajor = 102 } BLAS_ORDER;
 
-typedef enum CBLAS_TRANSPOSE {
-  CblasNoTrans     = 111,
-  CblasTrans       = 112,
-  CblasConjTrans   = 113,
-  CblasConjNoTrans = 114
-} CBLAS_TRANSPOSE;
+typedef enum BLAS_TRANSPOSE {
+  blasNoTrans     = 111,
+  blasTrans       = 112,
+  blasConjTrans   = 113,
+  blasConjNoTrans = 114
+} BLAS_TRANSPOSE;
 
 void randomInit(MATRIX_TYPE data, int size);
 
@@ -73,9 +73,9 @@ void sgemm_armv8a_sve_asm_2vx8(int k0, float* restrict alpha, float* restrict a,
 
 float *malloc_aligned(int m, int n, int size);
 
-void naive_gemm(const CBLAS_ORDER ordej,
-                const CBLAS_TRANSPOSE Atrans,
-                const CBLAS_TRANSPOSE Btrans,
+void naive_gemm(const BLAS_ORDER ordej,
+                const BLAS_TRANSPOSE Atrans,
+                const BLAS_TRANSPOSE Btrans,
                 const int M, const int N, const int K,
                 const VALUE_TYPE alpha,
                 const MATRIX_TYPE a, const int lda,

@@ -34,9 +34,9 @@
 //   free(T);
 // }
 
-void naive_gemm(const CBLAS_ORDER order,
-              const CBLAS_TRANSPOSE Atrans,
-              const CBLAS_TRANSPOSE Btrans,
+void naive_gemm(const BLAS_ORDER order,
+              const BLAS_TRANSPOSE Atrans,
+              const BLAS_TRANSPOSE Btrans,
               const int M, const int N, const int K,
               const VALUE_TYPE alpha,
               const MATRIX_TYPE a, const int lda,

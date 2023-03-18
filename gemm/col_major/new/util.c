@@ -11,7 +11,7 @@ void randomInit(MATRIX_TYPE data, int size) {
   long i;
   for (i = 0; i < size; ++i) {
     // data[i] = (rand() * 10.f) / (float)RAND_MAX;
-    data[i] = rand() / RAND_MAX;
+    data[i] = rand() / (RAND_MAX * 1.f);
   }
 }
 
@@ -26,7 +26,7 @@ void randomInit(MATRIX_TYPE data, int size) {
 void randomInit2(MATRIX_TYPE data1, MATRIX_TYPE data2, int size) {
   long i;
   for (i = 0; i < size; ++i) {
-    data2[i] = data1[i] = rand() / (float)RAND_MAX;
+    data2[i] = data1[i] = rand() / (RAND_MAX * 1.f);
   }
 }
 
@@ -103,9 +103,6 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
   double error_sum   = 0.f;
 
   for (i = 0; i < width; i++) {
-    if (error_count < iListLength) {
-      printf("\n  Col %d:\n", (int)i);
-    }
 
     for (j = 0; j < height; j++) {
       k           = i * height + j;

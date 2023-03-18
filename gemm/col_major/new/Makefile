@@ -5,7 +5,7 @@ endif
 SVE_FLAGS = -msve-vector-bits=256
 
 GCC=${GCC_PATH}/bin/gcc
-CFLAGS=  -Wall -march=armv8.2-a+sve -O2 -I./  
+CFLAGS=  -Wall -march=armv8.2-a+sve -O2 -I./  -I/usr/local/include/blis -lblis
 LDFLAGS=
 # LDFLAGS+= -fopenmp
 # CFLAGS+= -fopenmp -DMULTI_THREADS=1
