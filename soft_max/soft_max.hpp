@@ -5,9 +5,8 @@
 #include "align_malloc.hpp"
 #include "limits"
 
-inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x, svfloat32_t coeff_1, svfloat32_t coeff_2,
-                                       svfloat32_t coeff_3, svfloat32_t coeff_4, svfloat32_t coeff_5,
-                                       svfloat32_t coeff_6, svfloat32_t coeff_7, svfloat32_t coeff_8) {
+inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x, svfloat32_t coeff_1, svfloat32_t coeff_2, svfloat32_t coeff_3, svfloat32_t coeff_4, svfloat32_t coeff_5, svfloat32_t coeff_6,
+                                       svfloat32_t coeff_7, svfloat32_t coeff_8) {
   const auto A   = svmla_f32_z(pg, coeff_1, coeff_5, x);
   const auto B   = svmla_f32_z(pg, coeff_3, coeff_7, x);
   const auto C   = svmla_f32_z(pg, coeff_2, coeff_6, x);
@@ -41,8 +40,7 @@ inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   auto val = svmls_f32_z(pg, x, svcvt_f32_s32_z(pg, m), CONST_LN2);
 
   // Polynomial Approximation
-  auto poly = svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4, exp_tab_5, exp_tab_6, exp_tab_7,
-                                  exp_tab_8);
+  auto poly = svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4, exp_tab_5, exp_tab_6, exp_tab_7, exp_tab_8);
 
   // Reconstruct
   poly = svreinterpret_f32_s32(svqadd_s32(svreinterpret_s32_f32(poly), svlsl_n_s32_z(pg, m, 23)));
@@ -80,8 +78,7 @@ void logits_1d_max(const float* in, float* out, int workSize) {
 // * exp_tmp 为workSize大小的向量，可以重复使用
 // * in， out 为 workNum * workSize大小
 template <bool is_log>
-void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out, const float beta, int workSize,
-                        int workNum) {
+void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out, const float beta, int workSize, int workNum) {
   const auto all_true_pg = svptrue_b32();
   for (int i = 0; i < workNum; ++i) {
     float* in_ptr  = in + i * workSize;
@@ -120,7 +117,6 @@ void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out, const
       sum = svaddv(all_true_pg, vec_sum);
       if (is_log) {
         sum = (float)(log(sum));
-        // sum = std::static_cast<float>(std::log(sum));
       } else {
         sum = 1.f / sum;
       }

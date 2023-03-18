@@ -80,12 +80,17 @@ void ref_softmax_f32(float *input, float *output, int workNum, int workSize, flo
 }
 
 bool check_result(const float *a, const float *b, int size) {
-  int   error   = 0;
-  float err_sum = 0.f;
-  float eps     = 1e-5;
+  int   error    = 0;
+  float err_sum  = 0.f;
+  float eps      = 1e-5;
+  int   tole_len = 5;
   for (int i = 0; i < size; ++i) {
     if (fabs(a[i] - b[i]) > eps) {
       error++;
+      if (tole_len) {
+        std::cout << i << " : " << a[i] << " " << b[i] << "\n";
+        tole_len--;
+      }
     }
     err_sum += fabs(a[i] - b[i]);
   }
@@ -125,7 +130,6 @@ int main(int argc, char **argv) {
   softmax<false>(src, dst_sve, workNum, workSize, beta);
   t1.toc();
 
-  printf("sve ends\n");
   t2.tic();
   ref_softmax_f32(src, dst_naive, workNum, workSize, beta);
   t2.toc();
@@ -134,7 +138,4 @@ int main(int argc, char **argv) {
   std::cout << "csinn : " << t2.Elapsed() << std::endl;
 
   check_result(dst_sve, dst_naive, workNum * workSize);
-  for (int i = 0; i < 15; ++i) {
-      std::cout << dst_sve[i] << " " << dst_naive[i] << "\n";
-    }
-  }
+}

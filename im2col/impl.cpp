@@ -35,8 +35,7 @@ template <typename dtype>
  * @param kernel_hw
  * @param o_image_hw 卷积结果尺寸
  */
-void im2col(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-            const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
+void im2col(void *const src, void *const dst, const stride_args &stride, const padding_args &pad, const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
   // stride = 1 then it could vectorize
   int channel_size   = image_hw.w * image_hw.h;
   int o_channel_size = o_image_hw.w * o_image_hw.h * kernel_hw.h * kernel_hw.w;
@@ -46,9 +45,16 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
   dtype *dst_ptr = (dtype *)dst;
   for (int ic = image_hw.ic; ic--; src_ptr += channel_size, dst_ptr += o_channel_size) {  // big image loop
 
+    int kernel_total;
+    int kernel_row, kernel_col;
     // iteration by kernel pos
-    for (int kernel_row = 0; kernel_row < kernel_hw.w; ++kernel_row) {
-      for (int kernel_col = 0; kernel_col < kernel_hw.h; ++kernel_col) {
+// #pragma omp parallel for num_threads(8) private(kernel_row, kernel_col)
+    for (kernel_total = 0; kernel_total < kernel_hw.w * kernel_hw.h; ++kernel_total) {
+      kernel_row = kernel_total / kernel_hw.w;
+      kernel_col = kernel_total % kernel_hw.w;
+      // for (kernel_row = 0; kernel_row < kernel_hw.w; ++kernel_row) {
+      //   for (kernel_col = 0; kernel_col < kernel_hw.h; ++kernel_col)
+      {
 
         int input_row = -pad.up + kernel_row;
         for (int out_row = 0; out_row < o_image_hw.h; ++out_row, input_row += stride.h) {
@@ -70,11 +76,10 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
           CHECK(stride.w == 1);
           // vectorize at the input col iteration
 
-          int i_offset    = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
-          int o_offset    = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
-          int left_offset = (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
-          int right_offset =
-              (kernel_hw.w - (kernel_col + 1) > pad.right ? kernel_hw.w - (kernel_col + 1) - pad.right : 0);
+          int i_offset     = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
+          int o_offset     = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
+          int left_offset  = (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
+          int right_offset = (kernel_hw.w - (kernel_col + 1) > pad.right ? kernel_hw.w - (kernel_col + 1) - pad.right : 0);
 
           int valid_len = image_hw.w - left_offset - right_offset;
 
@@ -116,11 +121,10 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
   }
 }
 
-template void im2col<float>(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                            const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw);
+template void im2col<float>(void *const src, void *const dst, const stride_args &stride, const padding_args &pad, const image_args &image_hw, const kernel_args &kernel_hw,
+                            const image_args &o_image_hw);
 
-void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
+void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad, const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
   im2col<float>(src, dst, stride, pad, image_hw, kernel_hw, o_image_hw);
 }
 
