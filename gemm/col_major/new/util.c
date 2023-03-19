@@ -10,7 +10,7 @@
 void randomInit(MATRIX_TYPE data, int size) {
   long i;
   for (i = 0; i < size; ++i) {
-    data[i] = (rand() / (float)RAND_MAX) * 10.1f;
+    data[i] = (1.f * rand() / (float)RAND_MAX);
   }
 }
 
@@ -101,9 +101,6 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
   int  error_count = 0;
 
   for (i = 0; i < width; i++) {
-    if (error_count < iListLength) {
-      printf("\n  Col %d:\n", (int)i);
-    }
 
     for (j = 0; j < height; j++) {
       k           = i * height + j;
@@ -113,7 +110,6 @@ void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, in
         if (error_count < iListLength) {
           printf("    Loc(%d,%d)\tCPU=%.5f\tBLAS=%.5f\tDiff=%.6f\n", (int)j, (int)i, data1[k], data2[k], fDiff);
         }
-
         error_count++;
       }
     }

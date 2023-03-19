@@ -39,10 +39,6 @@ int get_vector_length() {
   return size * 8;
 }
 
-
-
-
-
 int main(int argc, char **argv) {
   printf("%d bits\n", get_vector_length());
   printf("%ld floats\n", svcntw());
@@ -56,13 +52,13 @@ int main(int argc, char **argv) {
   if (argc < 7) {
     printf(
         "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
-            USE default ./main 4 4 4 1 0 1");
-    P     = true;
-    argM  = 4;
-    argN  = 4;
-    argK  = 4;
+            USE default ./main 256 256 256 1 0 0");
+    P     = false;
+    argM  = 256;
+    argN  = 256;
+    argK  = 256;
     alpha = 1.0f;
-    beta  = 1;
+    beta  = 1.0f;
   } else {
     argM  = atoi(argv[1]);
     argN  = atoi(argv[2]);
@@ -120,10 +116,10 @@ int main(int argc, char **argv) {
     printFloat(c, argM, argN, argM, "C  my ways:");
   }
 
-  printf("naive : %lf\n", time1);
-  printf("my : %lf\n", time2);
+  printf("naive : %lf\n", (2.f * argM * argN * argK) / (time1 * 1e9));
+  printf("my : %lf\n", (2.f * argM * argN * argK) / (time2 * 1e9));
 
-  printDiff(c_ref, c, argM, argN, 0, 1e-5);
+  printDiff(c_ref, c, argM, argN, 5, 1e-5);
 
   /* free */
   free(a);
