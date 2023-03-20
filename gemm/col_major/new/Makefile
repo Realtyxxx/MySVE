@@ -16,7 +16,7 @@ COMPILE.c=$(GCC) $(CFLAGS) -c
 .o:.S
 
 all: main
-main : main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
+main.out : main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
 
 main.o : main.c
 gemm.o : gemm.c
