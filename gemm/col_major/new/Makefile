@@ -17,11 +17,11 @@ COMPILE.c=$(GCC) $(CFLAGS) -c
 .o:.c
 .o:.S
 
-.PHONY: clean cleanlog all test_block
+.PHONY: clean cleanlog all test_block.out
 
-all : test_block
-test_block : main_test.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
-	gcc $(CFLAGS) main_test.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o -o test_block
+all : test_block.out
+test_block.out : main_test.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
+	gcc $(CFLAGS) main_test.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o -o test_block.out
 main_test.o : main_test.c
 main.o : main.c
 gemm.o : gemm.c
@@ -31,7 +31,7 @@ util.o : util.c
 sgemm_naive.o : sgemm_naive.c
 
 clean:
-	rm -f *.o main qemu* *.o
+	rm -f *.o main qemu* *.out
 cleanlog:
 	rm -rf *.log
 
