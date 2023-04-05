@@ -39,7 +39,7 @@ float* malloc_aligned(int m, int n, int size) {
 
 void initRandom(float* src, int num) {
   for (int i = 0; i < num; ++i) {
-    src[i] = rand() * 1.f / RAND_MAX;
+    src[i] = rand() * 1.f / static_cast<float>(RAND_MAX);
   }
 }
 
@@ -113,7 +113,8 @@ int main(int argc, char** argv) {
   for (size_t i = 0; i < len; i++) {
     if (fabs(naive_out[i] - sve_out[i]) > 1e-5) {
       err++;
-      if (err < 5) std::cout << i << " : " << naive_out[i] << " , " << sve_out[i] << "\n";
+      if (err < 5)
+        std::cout << i << " : " << naive_out[i] << " , " << sve_out[i] << "\n";
     }
   }
   std::cout << err << std::endl;

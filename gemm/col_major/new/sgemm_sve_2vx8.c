@@ -67,9 +67,9 @@ void sgemm_armv8a_sve_asm_2vx8(int k0, float* restrict alpha, float* restrict a,
 "                                            \n\t"
 " ptrue p0.s                                 \n\t" // Creating all true predicate
 "                                            \n\t"
-LOAD2VEC_S(z0,z1,p0,x0)
+LOAD2VEC_S(z0,z1,p0,x0) // load 2 vec
 "                                            \n\t"
-LOAD8VEC_DIST_S(z2,z3,z4,z5,z6,z7,z8,z9,p0,x1)
+LOAD8VEC_DIST_S(z2,z3,z4,z5,z6,z7,z8,z9,p0,x1) // load broad cast 
 "                                            \n\t"
 "                                            \n\t"
 ZERO4VEC_S(z10,z11,z12,z13)                          // c columns 0-1
