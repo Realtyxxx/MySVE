@@ -625,8 +625,8 @@ void sgemm_armv8a_sve_asm_16x8(int k0, float* restrict alpha, float* restrict a,
       "                                            \n\t"
       " .S256GENSTORED:                            \n\t"  // C is general-stride stored.
       "                                            \n\t"
-      " index z10.s, wzr, w13                       \n\t"  // Creating index for stride load&store access
-      " mul w3, w13, w11                          \n\t"
+      " index z10.s, wzr, w13                      \n\t"  // Creating index for stride load&store access
+      " mul w3, w13, w11                           \n\t"
       " index z11.s, w3, w13                       \n\t"  // Creating index for stride load&store access
       "                                            \n\t"
       " dup z0.s, #0                               \n\t"

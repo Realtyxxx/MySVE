@@ -7,16 +7,10 @@
 #include <cmath>
 #include <iostream>
 #include <memory>
-#include "args.h"
 #include "matrix.h"
 #ifdef __ARM_FEATURE_SVE
 #include <arm_sve.h>
 #endif
-
-class deleter {
- public:
-  void operator()(float *ptr) { delete[] ptr; }
-};
 
 class Timer {
   using Clock = std::chrono::high_resolution_clock;
@@ -113,9 +107,6 @@ void im2col_cpu(float *data_im, int channels, int height, int width, int kernel_
   }
 }
 
-void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw);
-
 template <typename dtype>
 bool check_result(const Matrix<dtype> &A, const Matrix<dtype> &B) {
   CHECK(A.size() == B.size());
@@ -126,15 +117,15 @@ bool check_result(const Matrix<dtype> &A, const Matrix<dtype> &B) {
   const dtype *const a         = A.get();
   const dtype *const b         = B.get();
   double             error_sum = 0.f;
-// #pragma omp parallel for
+  // #pragma omp parallel for
   for (int i = 0; i < A.size(); ++i) {
     if (fabs(a[i] - b[i]) > eps) {
       error++;
     }
     error_sum += fabs(a[i] - b[i]);
   }
-    std::cout << "error count : " << error << std::endl;
-    std::cout << "error sum : " << error_sum << std::endl;
+  std::cout << "error count : " << error << std::endl;
+  std::cout << "error sum : " << error_sum << std::endl;
   if (error != 0) {
     // std::cout << "error count : " << error << std::endl;
     // std::cout << "error sum : " << error_sum << std::endl;
@@ -169,50 +160,4 @@ int main(int argc, char **argv) {
     kernel_h = atoi(argv[4]);
     kernel_w = atoi(argv[5]);
   }
-
-  // init args
-  stride_args  stride{1, 1};
-  padding_args pad{1, 1, 1, 1};
-  // padding_args pad{0, 0, 0, 0};
-  kernel_args k_arg{1, 1, kernel_h, kernel_w};
-  image_args  i_arg{1, image_c, image_h, image_w};
-  int         out_h = (i_arg.h - k_arg.h + pad.up + pad.down) / stride.h + 1;
-  int         out_w = (i_arg.w - k_arg.w + pad.left + pad.right) / stride.w + 1;
-  image_args  o_arg{1, 1, out_h, out_w};
-
-  Matrix<float> image(i_arg.ic, i_arg.h, i_arg.w);
-
-  Matrix<float> ref_image(i_arg.ic, k_arg.h * k_arg.w, o_arg.h * o_arg.w);
-  Matrix<float> out_image(i_arg.ic, k_arg.h * k_arg.w, o_arg.h * o_arg.w);
-
-  // kernel.init(0, 1);
-  // float *src = new float[i_arg.size()];
-  image.init(1, -1);
-  ref_image.init(0, 0);
-  out_image.init(0, 0);
-
-  // image.print("input");
-  // ref_image.print("ref");
-  // out_image.print("my");
-
-  Timer t1, t2;
-
-  t1.tic();
-  im2col_f32(image.get(), out_image.get(), stride, pad, i_arg, k_arg, o_arg);
-  t1.toc();
-
-  t2.tic();
-  im2col_cpu_threads(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up, pad.left, stride.h, stride.w, 1,
-                     1, ref_image.get());
-  t2.toc();
-
-  std::cout << "my    : " << t1.Elapsed() << std::endl;
-  std::cout << "caffe : " << t2.Elapsed() << std::endl;
-
-  if (!check_result<float>(ref_image, out_image)) {
-    out_image.print("my", o_arg.h);
-    ref_image.print("ref", o_arg.h);
-  }
-  // out_image.print("my");
-  // ref_image.print("ref");
 }

@@ -14,6 +14,7 @@ bool is_a_ge_zero_and_a_lt_b(int a, int b) {
   } else
     return false;
 }
+
 inline void copy(unsigned int valid_len, float *out_ptr, float *in_ptr) {
 
   int iter16    = valid_len / 16;

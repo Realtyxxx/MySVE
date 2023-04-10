@@ -5,7 +5,7 @@
  * @LastEditors  : Realtyxxx
  * @LastEditTime : 2022-12-06 17:58:26
  * @FilePath     : /sve_pooling/test_pooling_generic/main.cc
- * @ToDo         : 
+ * @ToDo         :
  */
 
 #define NHWC
@@ -109,8 +109,8 @@ int main(const int argc, char **argv) {
 
   float *const raw_input  = (float *)malloc(sizeof(float) * (n_batches)*input_size);
   float *const raw_input_ = (float *)malloc(sizeof(float) * (n_batches)*input_size);
-  float *      output     = (float *)malloc(sizeof(float) * n_batches * output_size);
-  float *      output_    = (float *)malloc(sizeof(float) * n_batches * output_size);
+  float       *output     = (float *)malloc(sizeof(float) * n_batches * output_size);
+  float       *output_    = (float *)malloc(sizeof(float) * n_batches * output_size);
 
   random_initialize(raw_input, n_batches * input_size);
   copy_initialize((float *)raw_input_, (float *)raw_input, n_batches * input_size);
@@ -127,7 +127,7 @@ int main(const int argc, char **argv) {
 
 #ifdef SVE
   tic();
-  pooling.execute(raw_input, output, nullptr, 0, 1);  //only one thread
+  pooling.execute(raw_input, output, nullptr, 0, 1);  // only one thread
   t1 = toc();
 
   std::cout << "SVE ASM : " << t1 << std::endl;
