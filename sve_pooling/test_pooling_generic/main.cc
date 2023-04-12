@@ -8,9 +8,7 @@
  * @ToDo         :
  */
 
-#define NHWC
-#define SVE
-#define NAIVE
+#include <omp.h>
 
 #include <assert.h>
 #include <memory.h>
@@ -21,19 +19,15 @@
 #include <random>
 #include "naive_nhwc_depthfirst_generic_max_pooling.h"
 
-#if defined(SVE)
 #include "pooling_generic.h"
-#endif
 
-#if defined(NHWC)
-#define N 1
-#define H 128
-#define W 224
-#define C 224
-#endif
+int N = 1;
+int H = 224;
+int W = 224;
+int C = 128;
+int h = 3;
+int w = 3;
 
-#define h 3
-#define w 3
 #define stride_row 1
 #define stride_col 1
 
@@ -54,33 +48,21 @@ void   print(float *in, int size, int assign = 0);
 
 /* main func */
 int main(const int argc, char **argv) {
-
-#if defined(NHWC)
-  assert(H < UINT64_MAX / W);
-  assert(H * W < UINT64_MAX / C);
-  assert(H * W * C < UINT64_MAX / N);
-  const uint64_t     n_batches  = N;
-  const uint64_t     input_size = H * W * C;
-  const unsigned int n_channels = C;
-#else
-  if (argc < 5) {
-    printf("error!\nusage : ./test N H W C\n");
-    return -1;
+  if (argc >= 7) {
+    N = atoi(argv[1]);
+    H = atoi(argv[2]);
+    W = atoi(argv[3]);
+    C = atoi(argv[4]);
+    h = atoi(argv[5]);
+    w = atoi(argv[6]);
   }
-  const int N = atoi(argv[1]);
-  const int H = atoi(argv[2]);
-  const int W = atoi(argv[3]);
-  const int C = atoi(argv[4]);
-
   const uint64_t     n_batches  = N;
   const uint64_t     input_size = H * W * C;
   const unsigned int n_channels = C;
-#endif
 
   unsigned int input_rows = H;
   unsigned int input_cols = W;
 
-#if defined(SVE)
   /* create Pooling execute object */
   pooling::PoolingType   type = PoolingType::MAX;
   pooling::PoolingWindow window;
@@ -94,70 +76,83 @@ int main(const int argc, char **argv) {
   pad.top    = pad_up;
   pad.right  = pad_right;
   pad.left   = pad_left;
-#endif
 
-  const uint64_t output_rows = (input_rows - h + pad_up + pad_bottom) / stride_row + 1;
-  const uint64_t output_cols = (input_cols - w + pad_left + pad_right) / stride_col + 1;
+  const uint64_t output1rows = (input_rows - h + pad_up + pad_bottom) / stride_row + 1;
+  const uint64_t output1cols = (input_cols - w + pad_left + pad_right) / stride_col + 1;
 
-  assert(output_rows < UINT64_MAX / output_cols);
-  const uint64_t output_size = output_rows * output_cols * n_channels;
+  assert(output1rows < UINT64_MAX / output1cols);
+  const uint64_t output1size = output1rows * output1cols * n_channels;
 
   // float *const raw_input  = (float *)alloca(sizeof(float) * (n_batches + 1) * input_size);
-  // float *const raw_input_ = (float *)alloca(sizeof(float) * (n_batches + 1) * input_size);
-  // float *      output     = (float *)alloca(sizeof(float) * n_batches * output_size);
-  // float *      output_    = (float *)alloca(sizeof(float) * n_batches * output_size);
+  // float *const raw_input1 = (float *)alloca(sizeof(float) * (n_batches + 1) * input_size);
+  // float *      output     = (float *)alloca(sizeof(float) * n_batches * output1size);
+  // float *      output1    = (float *)alloca(sizeof(float) * n_batches * output1size);
 
   float *const raw_input  = (float *)malloc(sizeof(float) * (n_batches)*input_size);
-  float *const raw_input_ = (float *)malloc(sizeof(float) * (n_batches)*input_size);
-  float       *output     = (float *)malloc(sizeof(float) * n_batches * output_size);
-  float       *output_    = (float *)malloc(sizeof(float) * n_batches * output_size);
+  float *const raw_input1 = (float *)malloc(sizeof(float) * (n_batches)*input_size);
+  float *const raw_input2 = (float *)malloc(sizeof(float) * (n_batches)*input_size);
+  float *      output     = (float *)malloc(sizeof(float) * n_batches * output1size);
+  float *      output1    = (float *)malloc(sizeof(float) * n_batches * output1size);
+  float *      output2    = (float *)malloc(sizeof(float) * n_batches * output1size);
 
   random_initialize(raw_input, n_batches * input_size);
-  copy_initialize((float *)raw_input_, (float *)raw_input, n_batches * input_size);
-  memset(output, 0, n_batches * output_size);
-  memset(output_, 0, n_batches * output_size);
+  copy_initialize((float *)raw_input1, (float *)raw_input, n_batches * input_size);
+  copy_initialize((float *)raw_input2, (float *)raw_input, n_batches * input_size);
+  memset(output, 0, n_batches * output1size);
+  memset(output1, 0, n_batches * output1size);
+  memset(output2, 0, n_batches * output1size);
 
-#if defined(SVE)
-  PoolingArgs                 args(type, window, stride, false, n_batches, input_rows, input_cols, n_channels, output_rows, output_cols, pad, nullptr);
+  PoolingArgs                 args(type, window, stride, false, n_batches, input_rows, input_cols, n_channels, output1rows, output1cols, pad, nullptr);
   PoolingCommon<float, float> pooling(args);
-#endif
 
   double t1 = 0.,
-         t2 = 0.;
+         t2 = 0.,
+         t3 = 0.;
 
-#ifdef SVE
+  int max_threads = omp_get_max_threads(), id;
+  printf("max threads : %d\n", max_threads);
+
   tic();
-  pooling.execute(raw_input, output, nullptr, 0, 1);  // only one thread
+#pragma omp parallel num_threads(max_threads) private(id)
+  {
+    id = omp_get_thread_num();
+    pooling.execute(raw_input, output, nullptr, id, max_threads);  // only one thread
+  }
   t1 = toc();
 
-  std::cout << "SVE ASM : " << t1 << std::endl;
-#endif
-
-#ifdef NAIVE
   tic();
-  naive_nhwc_depthfirst_generic_max_pooling<float>(raw_input_, output_, n_batches, n_channels, input_rows, input_cols, stride_row, stride_col, h, w);
+  {
+    pooling.execute(raw_input1, output1, nullptr, 0, 1);  // only one thread
+  }
   t2 = toc();
 
-  std::cout << "C       : " << t2 << std::endl;
-#endif
+  tic();
+  naive_nhwc_depthfirst_generic_max_pooling<float>(raw_input2, output2, n_batches, n_channels, input_rows, input_cols, stride_row, stride_col, h, w);
+  t3 = toc();
 
-#if defined(SVE) && defined(NAIVE)
-  uint64_t err_cnt = 0;
-  for (int i = 0; i < n_batches * output_size; ++i) {
-    if (output[i] != output_[i]) {
-      ++err_cnt;
+  std::cout << "SVE ASM MULTI THREADS: " << t1 << std::endl;
+  std::cout << "SVE ASM              : " << t2 << std::endl;
+  std::cout << "C                    : " << t3 << std::endl;
+
+  uint64_t err_cnt1 = 0, err_cnt2 = 0;
+  for (int i = 0; i < n_batches * output1size; ++i) {
+    if (output[i] != output2[i]) {
+      ++err_cnt1;
+    }
+    if (output1[i] != output2[i]) {
+      ++err_cnt2;
     }
   }
-  std::cout << "ERROR : " << err_cnt << std::endl;
-#endif
+  std::cout << "ERROR : " << err_cnt1 << std::endl;
+  std::cout << "ERROR : " << err_cnt2 << std::endl;
 
-  // print(output, output_size, output_cols);
-  // print(output_, output_size, output_cols);
+  // print(output, output1size, output1cols);
+  // print(output1, output1size, output1cols);
 
   free(raw_input);
-  free(raw_input_);
+  free(raw_input1);
   free(output);
-  free(output_);
+  free(output1);
 }
 
 int tic(void) { return gettimeofday(&start, NULL); }

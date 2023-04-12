@@ -4,8 +4,8 @@ endif
 
 SVE_FLAGS = -msve-vector-bits=256
 GCC=${GCC_PATH}/bin/gcc
-CFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  -fopenmp
-CXXFLAGS= -Wall -march=armv8.2-a+sve -O0 -I./  -fopenmp 
+CFLAGS= -Wall -march=armv8.2-a+sve -O2 -I./  -fopenmp
+CXXFLAGS= -Wall -march=armv8.2-a+sve -O2 -I./  -fopenmp 
 
 LDFLAGS=-fopenmp
 #  -fopenmp
@@ -15,9 +15,9 @@ COMPILE.c=$(GCC) $(CFLAGS) -c
 .o:.c
 .o:.S
 
-all: main
+all: main.out
 main.out : main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
-
+	$(GCC) $(CFLAGS) main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o -o main.out -fopenmp
 main.o : main.c
 gemm.o : gemm.c
 sgemm_sve_2vx8.o : sgemm_sve_2vx8.c

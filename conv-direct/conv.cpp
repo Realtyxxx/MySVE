@@ -2,8 +2,7 @@
 #include <arm_sve.h>
 #endif
 
-void direct_conv_nchw_f32(float* src, float* dst, float* weight, int batches, int channels, int height, int width,
-                          int out_channels, int kernel_h, int kernel_w, int padding, int stride) {
+void direct_conv_nchw_f32(float* src, float* dst, float* weight, int batches, int channels, int height, int width, int out_channels, int kernel_h, int kernel_w, int padding, int stride) {
   int output_height = (height + 2 * padding - kernel_h) / stride + 1;
   int output_width  = (width + 2 * padding - kernel_w) / stride + 1;
   for (int oc = 0; oc < out_channels; ++oc) {
@@ -14,4 +13,6 @@ void direct_conv_nchw_f32(float* src, float* dst, float* weight, int batches, in
   }
 }
 
-void im2col_conv_sve()
+void im2col_conv_sve(float* src, float* dst, float* weight, int batches, int channels, int height, int width, int out_channels, int kernel_h, int kernel_w, int padding, int stride) {
+
+}

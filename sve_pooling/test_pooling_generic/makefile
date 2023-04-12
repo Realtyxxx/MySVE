@@ -1,5 +1,5 @@
 CC = g++
-flags =   -I../src/nhwc_depthfirst_kernel -I../src/ -I./
+flags =   -I../src/nhwc_depthfirst_kernel -I../src/ -I./ -fopenmp
 
 
 .PHONY: all 

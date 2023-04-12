@@ -20,6 +20,7 @@ inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x, svfloat32_t c
 inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   const auto CONST_LN2          = svdup_n_f32(0.6931471805f);  // ln(2)
   const auto CONST_INV_LN2      = svdup_n_f32(1.4426950408f);  // 1/ln(2)
+
   const auto CONST_INF          = svdup_n_f32(std::numeric_limits<float>::infinity());
   const auto CONST_MAX_INPUT    = svdup_n_f32(88.7f);
   const auto CONST_0            = svdup_n_f32(0.f);
