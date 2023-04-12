@@ -82,7 +82,7 @@ void sgemm_Macro(const int M, const int N, const int K,
   for (j = 0; j < N; j += NR) {  // 2-th loop around micro-kernel
     for (i = 0; i < M; i += MR) {
       if (i + MR >= M) {
-        b_next += NR * K;  // FIXME: what here means
+        b_next += NR * K;
       }
       if (i + MR >= M) {
         a_next = packA;
@@ -126,13 +126,14 @@ void sgemm(const int M, const int N, const int K,
   // beta
   float _beta;
 
-  int total_threads = 8;
-  // int total_threads = 1;
+#if MULTI_THREADS
+  int total_threads = omp_get_max_threads();
+#else
+  int total_threads = 1;
+#endif
 
   packA = malloc_aligned(KC, (MC + 1) * total_threads, sizeof(float));
-  // ? FIXME: 为什么 要以 MC + 1 计算大小 得到 (mc + 1) * kc 为了多打包一份？
   packB = malloc_aligned(KC, (NC + 1), sizeof(float));
-  // ? FIXME: 为什么 要以 NC + 1 计算大小 得到 (nc + 1) * kc
 
   for (jc = 0; jc < N; jc += NC) { /* iterate nc */
     jb    = min(N - jc, NC);
@@ -145,15 +146,22 @@ void sgemm(const int M, const int N, const int K,
       pb = min(K - pc, KC);
 
 // TODO: here need to pack B
+#if MULTI_THREADS
 #pragma omp parallel for num_threads(total_threads) private(j)
+#endif
       for (j = 0; j < jb; j += NR) {
         packB_kcxnc_d(min(jb - j, NR), pb, &b[pc], K, jc + j, &packB[j * pb]);
       }
 
+#if MULTI_THREADS
 #pragma omp parallel for num_threads(total_threads) private(ic, ib, i)
+#endif
       for (ic = 0; ic < M; ic += MC) { /* iterate mc, and A block maked */
+#if MULTI_THREADS
         int tid = omp_get_thread_num();
-        // int tid = 0;
+#else
+        int tid = 0;
+#endif
         ib = min(M - ic, MC);
 
         for (i = 0; i < ib; i += MR) {
@@ -172,3 +180,4 @@ void sgemm(const int M, const int N, const int K,
  * B pannel is kc * nc size
  * C block  is mc * nc size
  */
+

@@ -132,6 +132,7 @@ void conv_im2col_gemm_f32(float *src, float *weights, float *dst, int batches, i
   int M = out_height * out_width;
   int N = out_channel;
   int K = channel * kernel_height * kernel_width;
+  printf("M = %d, N = %d, K = %d\n", M, N, K);
   sgemm(M, N, K, 1, trans_image, M, weights, K, 0, dst, M);
   free(trans_image);
 }
