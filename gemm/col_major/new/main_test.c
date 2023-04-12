@@ -25,6 +25,16 @@ double toc(void) {
   return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
 }
 
+#define TIME_START(num)                      \
+  struct timeval tv_start##num, tv_end##num; \
+  gettimeofday(&tv_start##num, NULL);
+#define TIME_END(num, tag)                                    \
+  gettimeofday(&tv_end##num, NULL);                           \
+  printf("[%s-%d]:%s Cost=%fms\n", __func__, __LINE__, #tag,  \
+         ((tv_end##num.tv_sec - tv_start##num.tv_sec) * 1e6 + \
+          (tv_end##num.tv_usec - tv_start##num.tv_usec)) /    \
+             1000.0f);
+
 int get_vector_length() {
   int size = 0;
 
@@ -53,11 +63,11 @@ int main(int argc, char **argv) {
         "USAGE: ./main $(M) $(N) $(K) $(alpha) $(beta)\n \
             USE default ./main 4 4 4 1 0 1");
     P     = true;
-    argM  = 4;
-    argN  = 4;
-    argK  = 4;
+    argM  = 320;
+    argN  = 320;
+    argK  = 320;
     alpha = 1.0f;
-    beta  = 1;
+    beta  = 0;
   } else {
     argM  = atoi(argv[1]);
     argN  = atoi(argv[2]);
@@ -90,6 +100,8 @@ int main(int argc, char **argv) {
   InstantInit(c, c_length, 9.f);
   InstantInit(c_ref, c_length, 9.f);
 
+  printf("omp has %d threads\n", omp_get_max_threads());
+
   /* print the  matrix before operation */
   if (P) {
     printFloat(a, argM, argK, argM, "a  :");
@@ -104,14 +116,18 @@ int main(int argc, char **argv) {
   CBLAS_ORDER     store_order = CblasColMajor;
   CBLAS_TRANSPOSE Atrans      = CblasNoTrans;
   CBLAS_TRANSPOSE Btrans      = CblasNoTrans;
-  tic();
+  // tic();
+  TIME_START(naive);
   naive_gemm(store_order, Atrans, Btrans, argM, argN, argK, alpha, a, argM, b, argK, beta, c_ref, argM);
-  time1 = toc();
+  TIME_END(naive, naive);
+  // time1 = toc();
 
   /* my gemm operation */
-  tic();
+  // tic();
+  TIME_START(sve);
   sgemm(argM, argN, argK, alpha, a, argM, b, argK, beta, c, argM, mc, nc, kc);
-  time2 = toc();
+  TIME_END(sve, sve);
+  // time2 = toc();
 
   /* print the matrix after operation */
   if (P) {

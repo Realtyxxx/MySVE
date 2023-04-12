@@ -1,5 +1,5 @@
 #include "gemm.h"
-#include "omp.h"
+#include <omp.h>
 #include "stdlib.h"
 
 // clang-format off
@@ -127,7 +127,7 @@ void sgemm(const int M, const int N, const int K,
   float _beta;
 
 #if MULTI_THREADS
-  int total_threads = 16;
+  int total_threads = omp_get_max_threads();
 #else
   int total_threads = 1;
 #endif
