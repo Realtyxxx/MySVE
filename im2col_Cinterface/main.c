@@ -1,90 +1,32 @@
 
-#include <omp.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdio.h>
-#ifdef __ARM_FEATURE_SVE
 #include <arm_sve.h>
-#endif
-// bool is_a_ge_zero_and_a_lt_b(int a, int b) {
-//   if ((0 <= a) && (a < b)) {
-//     return true;
-//   } else
-//     return false;
-// }
+#include <omp.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
 
-// void im2col_cpu_threads(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h,
-//                         int pad_w, int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col) {
-//   const int output_h     = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-//   const int output_w     = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
-//   const int channel_size = height * width;
-//   // std::cout << "channels" << channels << "  ih" << height << "  iw" << width << "  kh" << kernel_h << "  kw" <<
-//   // kernel_w
-//   //           << "  ph" << pad_h << "  pw" << pad_w << "  sh" << stride_h << "  sw" << stride_w << "  dh" << dilation_h
-//   //           << "  dw" << dilation_w << '\n';
-//   int max_threads = omp_get_max_threads();
-// #pragma omp parallel for num_threads(max_threads)
-//   for (int channel = 0; channel < channels; ++channel) {
-//     int datacol_off = channel * kernel_h * kernel_w * output_h * output_w;
-//     for (int kernel_row = 0; kernel_row < kernel_h; kernel_row++) {
-//       for (int kernel_col = 0; kernel_col < kernel_w; kernel_col++) {
-//         int input_row = -pad_h + kernel_row * dilation_h;
-//         for (int output_rows = output_h; output_rows; output_rows--) {
-//           if (!is_a_ge_zero_and_a_lt_b(input_row, height)) {
-//             for (int output_cols = output_w; output_cols; output_cols--) {
-//               *(data_col + datacol_off++) = 0;
-//             }
-//           } else {
-//             int input_col = -pad_w + kernel_col * dilation_w;
-//             for (int output_col = output_w; output_col; output_col--) {
-//               if (is_a_ge_zero_and_a_lt_b(input_col, width)) {
-//                 *(data_col + datacol_off++) = *(data_im + channel_size * channel + input_row * width + input_col);
-//               } else {
-//                 *(data_col + datacol_off++) = 0;
-//               }
-//               input_col += stride_w;
-//             }
-//           }
-//           input_row += stride_h;
-//         }
-//       }
-//     }
-//   }
-// }
+#define TIME_START(num)                      \
+  struct timeval tv_start##num, tv_end##num; \
+  gettimeofday(&tv_start##num, NULL);
 
-// void im2col_cpu(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-//                 int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col) {
-//   const int output_h     = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-//   const int output_w     = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
-//   const int channel_size = height * width;
-//   for (int channel = channels; channel--; data_im += channel_size) {
-//     for (int kernel_row = 0; kernel_row < kernel_h; kernel_row++) {
-//       for (int kernel_col = 0; kernel_col < kernel_w; kernel_col++) {
-//         int input_row = -pad_h + kernel_row * dilation_h;
-//         for (int output_rows = output_h; output_rows; output_rows--) {
-//           if (!is_a_ge_zero_and_a_lt_b(input_row, height)) {
-//             for (int output_cols = output_w; output_cols; output_cols--) {
-//               *(data_col++) = 0;
-//             }
-//           } else {
-//             int input_col = -pad_w + kernel_col * dilation_w;
-//             for (int output_col = output_w; output_col; output_col--) {
-//               if (is_a_ge_zero_and_a_lt_b(input_col, width)) {
-//                 *(data_col++) = data_im[input_row * width + input_col];
-//               } else {
-//                 *(data_col++) = 0;
-//               }
-//               input_col += stride_w;
-//             }
-//           }
-//           input_row += stride_h;
-//         }
-//       }
-//     }
-//   }
-// }
+#define TIME_END(num, tag)                                \
+  gettimeofday(&tv_end##num, NULL);                       \
+  printf(                                                 \
+      "[%s-%d]:%s Cost=%fms\n", __func__, __LINE__, #tag, \
+      ((tv_end##num.tv_sec - tv_start##num.tv_sec) * 1e6 + (tv_end##num.tv_usec - tv_start##num.tv_usec)) / 1000.0f);
+
+void conv_im2col_gemm_f32(float *src, float *weights, float *dst, int batches, int channel, int height, int width,
+                          int out_channel, int kernel_height, int kernel_width, int stride, int pad);
+
+void randomInit(float *data, int size) {
+  long i;
+  for (i = 0; i < size; ++i) {
+    data[i] = ((float)rand() / (float)RAND_MAX);
+  }
+}
 
 int main(int argc, char **argv) {
 #ifdef __ARM_FEATURE_SVE
@@ -93,16 +35,40 @@ int main(int argc, char **argv) {
   srand(time(NULL));
   printf("omp has max_threads as %d\n", omp_get_max_threads());
 
-  int image_c  = 128;
-  int image_h  = 224;
-  int image_w  = 224;
-  int kernel_h = 3;
-  int kernel_w = 3;
+  int c      = 128;
+  int h      = 224;
+  int w      = 224;
+  int kh     = 3;
+  int kw     = 3;
+  int oc     = 2;
+  int pad    = 1;
+  int stride = 1;
   if (argc > 1) {
-    image_c  = atoi(argv[1]);
-    image_h  = atoi(argv[2]);
-    image_w  = atoi(argv[3]);
-    kernel_h = atoi(argv[4]);
-    kernel_w = atoi(argv[5]);
+    c      = atoi(argv[1]);
+    h      = atoi(argv[2]);
+    w      = atoi(argv[3]);
+    oc     = atoi(argv[4]);
+    kh     = atoi(argv[5]);
+    kw     = atoi(argv[6]);
+    pad    = atoi(argv[7]);
+    stride = atoi(argv[8]);
   }
+
+  int    input_size   = c * h * w;
+  int    weights_size = oc * kw * kh;
+  float *input        = (float *)malloc(sizeof(float) * input_size);
+  float *weights      = (float *)malloc(sizeof(float) * weights_size);
+
+  randomInit(input, input_size);
+  randomInit(weights, weights_size);
+
+  int out_height  = (h - kh + pad * 2) / stride + 1;
+  int out_width   = (w - kw + pad * 2) / stride + 1;
+  int output_size = out_height * out_width;
+
+  float *output = (float *)malloc(sizeof(float) * output_size);
+  TIME_START(conv);
+  conv_im2col_gemm_f32(input, weights, output, 1, c, h, w, oc, kh, kw, stride, pad);
+  TIME_END(conv, conv);
+  return 0;
 }
