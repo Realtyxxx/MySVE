@@ -78,6 +78,27 @@ void sgemm_Macro(const int M, const int N, const int K,
   // char *str;
   a_next = packA;
   b_next = packB;
+  // if (M < MR || N < NR) {
+  //   // find the most fitable size fall to
+  //   printf("M = %d, N = %d, K = %d\n", M, N, K);
+  //   for (int i = 0; i < M * K; ++i) {
+  //     printf("%f\t", packA[i]);
+  //   }
+  //   printf("\n");
+  //   for (int i = 0; i < N * K; ++i) {
+  //     printf("%f\t", packB[i]);
+  //   }
+  //   printf("\n");
+  //   float *Cr = c;
+  //   for (int k = 0; k < K; ++k) {
+  //     for (int m = 0; m < M; ++m) {
+  //       for (int n = 0; n < N; ++n) {
+  //         *(Cr + m + n * ldc) += *(packA + m + M * k) * *(packB + n + k * N);
+  //       }
+  //     }
+  //   }
+  //   return;
+  // }
 
   for (j = 0; j < N; j += NR) {  // 2-th loop around micro-kernel
     for (i = 0; i < M; i += MR) {
