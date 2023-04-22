@@ -77,10 +77,10 @@ int main(int argc, char **argv) {
   MATRIX_TYPE c     = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   MATRIX_TYPE c_ref = (MATRIX_TYPE)malloc(c_length * sizeof(VALUE_TYPE));
   assert(a != NULL && b != NULL && c != NULL && c_ref != NULL);
-  randomInit(a, a_length);
-  randomInit(b, b_length);
-  // InstantInit(a, a_length, 1.f);
-  // InstantInit(b, b_length, 1.f);
+  // randomInit(a, a_length);
+  // randomInit(b, b_length);
+  InstantInit(a, a_length, 1.f);
+  InstantInit(b, b_length, 1.f);
   InstantInit(c, c_length, 0.f);
   InstantInit(c_ref, c_length, 0.f);
 

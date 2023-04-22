@@ -112,8 +112,8 @@ void sgemm_Macro(const int M, const int N, const int K,
         a_next += MR * K;
       }
       // (*bl_micro_kernel)(k, &packA[i * k], &packB[j * k], &C[j * ldc + i], (unsigned long long)ldc, &aux);
-      sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
-      // vl_8(32, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
+      // sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
+      vl_8(96, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
     }  // 1-th loop around micro-kernel
   }    // 2-th loop around micro-kernel
 }
