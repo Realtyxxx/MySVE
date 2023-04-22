@@ -83,7 +83,6 @@ int main(const int argc, char **argv) {
   assert(output1rows < UINT64_MAX / output1cols);
   const uint64_t output1size = output1rows * output1cols * n_channels;
 
-
   float *const raw_input  = (float *)malloc(sizeof(float) * (n_batches)*input_size);
   float *const raw_input1 = (float *)malloc(sizeof(float) * (n_batches)*input_size);
   float *const raw_input2 = (float *)malloc(sizeof(float) * (n_batches)*input_size);
@@ -126,9 +125,9 @@ int main(const int argc, char **argv) {
   naive_nhwc_depthfirst_generic_max_pooling<float>(raw_input2, output2, n_batches, n_channels, input_rows, input_cols, stride_row, stride_col, h, w);
   t3 = toc();
 
-  std::cout << "SVE ASM MULTI THREADS: " << t1 * 1000.f << "ms"<< std::endl;
-  std::cout << "SVE ASM              : " << t2 * 1000.f<< "ms"<< std::endl;
-  std::cout << "C                    : " << t3 * 1000.f<< "ms"<< std::endl;
+  std::cout << "SVE ASM MULTI THREADS: " << t1 * 1000.f << "ms" << std::endl;
+  std::cout << "SVE ASM              : " << t2 * 1000.f << "ms" << std::endl;
+  std::cout << "C                    : " << t3 * 1000.f << "ms" << std::endl;
 
   uint64_t err_cnt1 = 0, err_cnt2 = 0;
   for (int i = 0; i < n_batches * output1size; ++i) {

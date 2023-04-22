@@ -15,7 +15,8 @@ class Timer {
   inline void toc() { end_ = Clock::now(); }
 
   inline double Elapsed() {
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
     return duration.count();
   }
 
@@ -80,13 +81,15 @@ int main(int argc, char** argv) {
   naive_timer.tic();
   for (int i = 0; i < 1000; ++i) {
     get_mean_and_variance_naive(vec, naive_mean, naive_var, 2, ndim);
-    shl_ref_batch_normalization_f32(vec, naive_mean, naive_var, beta, naive_out, 10.f, NULL, 2, ndim);
+    shl_ref_batch_normalization_f32(vec, naive_mean, naive_var, beta, naive_out,
+                                    10.f, NULL, 2, ndim);
   }
   naive_timer.toc();
   sve_timer.tic();
   for (int i = 0; i < 1000; ++i) {
     get_mean_and_variance_sve(vec, sve_mean, sve_var, 2, ndim);
-    batchnorm_sve_nhwc(vec, naive_mean, naive_var, beta, sve_out, 10.f, NULL, 2, ndim);
+    batchnorm_sve_nhwc(vec, naive_mean, naive_var, beta, sve_out, 10.f, NULL, 2,
+                       ndim);
   }
   sve_timer.toc();
 
@@ -95,7 +98,8 @@ int main(int argc, char** argv) {
   // for (size_t i = 0; i < C; i++) {
   //   if (fabs(naive_mean[i] - sve_mean[i]) > 1e-5) {
   //     err++;
-  //     if (err < 5) std::cout << i << " : " << naive_mean[i] << " , " << sve_mean[i] << "\n";
+  //     if (err < 5) std::cout << i << " : " << naive_mean[i] << " , " <<
+  //     sve_mean[i] << "\n";
   //   }
   // }
   // std::cout << err << std::endl;
@@ -104,7 +108,8 @@ int main(int argc, char** argv) {
   // for (size_t i = 0; i < C; i++) {
   //   if (fabs(naive_var[i] - sve_var[i]) > 1e-5) {
   //     err++;
-  //     if (err < 5) std::cout << i << " : " << naive_var[i] << " , " << sve_var[i] << "\n";
+  //     if (err < 5) std::cout << i << " : " << naive_var[i] << " , " <<
+  //     sve_var[i] << "\n";
   //   }
   // }
   // std::cout << err << std::endl;
@@ -118,5 +123,6 @@ int main(int argc, char** argv) {
     }
   }
   std::cout << err << std::endl;
-  std::cout << "NAIVE : " << naive_timer.Elapsed() << "\n  SVE : " << sve_timer.Elapsed() << std::endl;
+  std::cout << "NAIVE : " << naive_timer.Elapsed()
+            << "\n  SVE : " << sve_timer.Elapsed() << std::endl;
 }

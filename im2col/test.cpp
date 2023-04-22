@@ -22,6 +22,4 @@ class A {
  private:
   shared_ptr<float *> ptr;
 };
-int main() {
-  A a(10);
-}
+int main() { A a(10); }

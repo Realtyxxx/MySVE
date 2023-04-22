@@ -37,7 +37,10 @@ typedef int         DIM_TYPE;
 typedef DIM_TYPE*   DIM_PTR;
 typedef VALUE_TYPE* MATRIX_TYPE;
 
-typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;
+typedef enum CBLAS_ORDER {
+  CblasRowMajor = 101,
+  CblasColMajor = 102
+} CBLAS_ORDER;
 
 typedef enum CBLAS_TRANSPOSE {
   CblasNoTrans     = 111,
@@ -56,7 +59,8 @@ void printFloat1(void* A, int row, int col, int lda, const char* arg);
 
 void printFloat(void* A, int row, int col, int lda, const char* arg);
 
-void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height, int iListLength, float fListTol) ;
+void printDiff(MATRIX_TYPE data1, MATRIX_TYPE data2, long width, long height,
+               int iListLength, float fListTol);
 
 // clang-format off
 // void my_dgemm_sve_4x4(const int M, const int N, const int K,

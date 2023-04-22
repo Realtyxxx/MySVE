@@ -62,8 +62,9 @@ template <typename dtype>
  * @param kernel_hw
  * @param o_image_hw 卷积结果尺寸
  */
-void im2col(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-            const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
+void im2col(void *const src, void *const dst, const stride_args &stride,
+            const padding_args &pad, const image_args &image_hw,
+            const kernel_args &kernel_hw, const image_args &o_image_hw) {
   // stride = 1 then it could vectorize
   int channel_size   = image_hw.w * image_hw.h;
   int o_channel_size = o_image_hw.w * o_image_hw.h * kernel_hw.h * kernel_hw.w;
@@ -71,14 +72,17 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
 
   dtype *src_ptr = (dtype *)src;
   dtype *dst_ptr = (dtype *)dst;
-  for (int ic = image_hw.ic; ic--; src_ptr += channel_size, dst_ptr += o_channel_size) {  // big image loop
+  for (int ic = image_hw.ic; ic--;
+       src_ptr += channel_size, dst_ptr += o_channel_size) {  // big image loop
 
     int kernel_total;
     int kernel_row, kernel_col;
     // iteration by kernel pos
     int max_threads = omp_get_max_threads();
-#pragma omp parallel for num_threads(max_threads) private(kernel_row, kernel_col)
-    for (kernel_total = 0; kernel_total < kernel_hw.w * kernel_hw.h; ++kernel_total) {
+#pragma omp parallel for num_threads(max_threads) private(kernel_row, \
+                                                          kernel_col)
+    for (kernel_total = 0; kernel_total < kernel_hw.w * kernel_hw.h;
+         ++kernel_total) {
       kernel_row = kernel_total / kernel_hw.w;
       kernel_col = kernel_total % kernel_hw.w;
       // for (kernel_row = 0; kernel_row < kernel_hw.w; ++kernel_row) {
@@ -86,11 +90,14 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
       {
 
         int input_row = -pad.up + kernel_row;
-        for (int out_row = 0; out_row < o_image_hw.h; ++out_row, input_row += stride.h) {
+        for (int out_row = 0; out_row < o_image_hw.h;
+             ++out_row, input_row += stride.h) {
           if (input_row < 0 || input_row >= image_hw.h) {
             continue;
           }
-          float *dst_offset = dst_ptr + (kernel_row * kernel_hw.w + kernel_col) * (o_image_hw.w * o_image_hw.h);
+          float *dst_offset =
+              dst_ptr + (kernel_row * kernel_hw.w + kernel_col) *
+                            (o_image_hw.w * o_image_hw.h);
           // * here could be optimized
           // #if 1
 #if 0 
@@ -105,16 +112,18 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
           CHECK(stride.w == 1);
           // vectorize at the input col iteration
 
-          int i_offset    = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
-          int o_offset    = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
-          int left_offset = (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
-          int right_offset =
-              (kernel_hw.w - (kernel_col + 1) > pad.right ? kernel_hw.w - (kernel_col + 1) - pad.right : 0);
+          int i_offset = (kernel_col > pad.left) ? kernel_col - pad.left : 0;
+          int o_offset = (pad.left > kernel_col) ? pad.left - kernel_col : 0;
+          int left_offset =
+              (kernel_col - pad.left >= 0 ? kernel_col - pad.left : 0);
+          int right_offset = (kernel_hw.w - (kernel_col + 1) > pad.right
+                                  ? kernel_hw.w - (kernel_col + 1) - pad.right
+                                  : 0);
 
           int valid_len = image_hw.w - left_offset - right_offset;
 
-          // printf("DEBUG:valid_len : %d , kernel_col : %d , offsets  :  %d , %d\n", valid_len, kernel_col,
-          // left_offset, right_offset);
+          // printf("DEBUG:valid_len : %d , kernel_col : %d , offsets  :  %d ,
+          // %d\n", valid_len, kernel_col, left_offset, right_offset);
 
           float *out_ptr = dst_offset + out_row * o_image_hw.w + o_offset;
           float *in_ptr  = src_ptr + input_row * image_hw.w + i_offset;
@@ -126,11 +135,15 @@ void im2col(void *const src, void *const dst, const stride_args &stride, const p
   }
 }
 
-template void im2col<float>(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                            const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw);
+template void im2col<float>(void *const src, void *const dst,
+                            const stride_args &stride, const padding_args &pad,
+                            const image_args & image_hw,
+                            const kernel_args &kernel_hw,
+                            const image_args & o_image_hw);
 
-void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
+void im2col_f32(void *const src, void *const dst, const stride_args &stride,
+                const padding_args &pad, const image_args &image_hw,
+                const kernel_args &kernel_hw, const image_args &o_image_hw) {
   im2col<float>(src, dst, stride, pad, image_hw, kernel_hw, o_image_hw);
 }
 

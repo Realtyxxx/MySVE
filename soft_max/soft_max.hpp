@@ -5,23 +5,28 @@
 #include "align_malloc.hpp"
 #include "limits"
 
-inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x, svfloat32_t coeff_1, svfloat32_t coeff_2, svfloat32_t coeff_3, svfloat32_t coeff_4, svfloat32_t coeff_5, svfloat32_t coeff_6,
-                                       svfloat32_t coeff_7, svfloat32_t coeff_8) {
-  const auto A   = svmla_f32_z(pg, coeff_1, coeff_5, x);
-  const auto B   = svmla_f32_z(pg, coeff_3, coeff_7, x);
-  const auto C   = svmla_f32_z(pg, coeff_2, coeff_6, x);
-  const auto D   = svmla_f32_z(pg, coeff_4, coeff_8, x);
-  const auto x2  = svmul_f32_z(pg, x, x);
-  const auto x4  = svmul_f32_z(pg, x2, x2);
-  const auto res = svmla_f32_z(pg, svmla_f32_z(pg, A, B, x2), svmla_f32_z(pg, C, D, x2), x4);
+inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x,
+                                       svfloat32_t coeff_1, svfloat32_t coeff_2,
+                                       svfloat32_t coeff_3, svfloat32_t coeff_4,
+                                       svfloat32_t coeff_5, svfloat32_t coeff_6,
+                                       svfloat32_t coeff_7,
+                                       svfloat32_t coeff_8) {
+  const auto A  = svmla_f32_z(pg, coeff_1, coeff_5, x);
+  const auto B  = svmla_f32_z(pg, coeff_3, coeff_7, x);
+  const auto C  = svmla_f32_z(pg, coeff_2, coeff_6, x);
+  const auto D  = svmla_f32_z(pg, coeff_4, coeff_8, x);
+  const auto x2 = svmul_f32_z(pg, x, x);
+  const auto x4 = svmul_f32_z(pg, x2, x2);
+  const auto res =
+      svmla_f32_z(pg, svmla_f32_z(pg, A, B, x2), svmla_f32_z(pg, C, D, x2), x4);
   return res;
 }
 
 inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
-  const auto CONST_LN2          = svdup_n_f32(0.6931471805f);  // ln(2)
-  const auto CONST_INV_LN2      = svdup_n_f32(1.4426950408f);  // 1/ln(2)
+  const auto CONST_LN2     = svdup_n_f32(0.6931471805f);  // ln(2)
+  const auto CONST_INV_LN2 = svdup_n_f32(1.4426950408f);  // 1/ln(2)
 
-  const auto CONST_INF          = svdup_n_f32(std::numeric_limits<float>::infinity());
+  const auto CONST_INF = svdup_n_f32(std::numeric_limits<float>::infinity());
   const auto CONST_MAX_INPUT    = svdup_n_f32(88.7f);
   const auto CONST_0            = svdup_n_f32(0.f);
   const auto CONST_NEGATIVE_126 = svdup_n_s32(-126);
@@ -41,10 +46,13 @@ inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   auto val = svmls_f32_z(pg, x, svcvt_f32_s32_z(pg, m), CONST_LN2);
 
   // Polynomial Approximation
-  auto poly = svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4, exp_tab_5, exp_tab_6, exp_tab_7, exp_tab_8);
+  auto poly =
+      svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4,
+                          exp_tab_5, exp_tab_6, exp_tab_7, exp_tab_8);
 
   // Reconstruct
-  poly = svreinterpret_f32_s32(svqadd_s32(svreinterpret_s32_f32(poly), svlsl_n_s32_z(pg, m, 23)));
+  poly = svreinterpret_f32_s32(
+      svqadd_s32(svreinterpret_s32_f32(poly), svlsl_n_s32_z(pg, m, 23)));
 
   // Handle underflow
   svbool_t ltpg = svcmplt_s32(pg, m, CONST_NEGATIVE_126);
@@ -79,7 +87,8 @@ void logits_1d_max(const float* in, float* out, int workSize) {
 // * exp_tmp 为workSize大小的向量，可以重复使用
 // * in， out 为 workNum * workSize大小
 template <bool is_log>
-void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out, const float beta, int workSize, int workNum) {
+void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out,
+                        const float beta, int workSize, int workNum) {
   const auto all_true_pg = svptrue_b32();
   for (int i = 0; i < workNum; ++i) {
     float* in_ptr  = in + i * workSize;
@@ -101,7 +110,8 @@ void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out, const
       svbool_t pg      = svwhilelt_b32(x, workSize);
       do {
         auto vec_elements = svld1(pg, in_ptr + x);
-        vec_elements      = svmul_z(pg, svsub_z(pg, vec_elements, vec_max), vec_beta);
+        vec_elements =
+            svmul_z(pg, svsub_z(pg, vec_elements, vec_max), vec_beta);
         if (!is_log) {
           vec_elements = svexp_f32_z(pg, vec_elements);
           vec_sum      = svadd_m(pg, vec_sum, vec_elements);
@@ -150,5 +160,6 @@ void softmax(float* in, float* out, int workNum, int workSize, float beta) {
   for (int i = 0; i < workNum; ++i) {
     logits_1d_max(in + workSize * i, max_tmp + i, workSize);
   }
-  logits_1d_soft_max<is_log>(in, exp_tmp, max_tmp, out, beta, workSize, workNum);
+  logits_1d_soft_max<is_log>(in, exp_tmp, max_tmp, out, beta, workSize,
+                             workNum);
 }

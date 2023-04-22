@@ -6,16 +6,20 @@ enum ElementWiseUnary { exp, neg, abs };
 
 enum ElementWiseBinary { max, min, add, sub, mul };
 
-inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x, svfloat32_t coeff_1, svfloat32_t coeff_2,
-                                       svfloat32_t coeff_3, svfloat32_t coeff_4, svfloat32_t coeff_5,
-                                       svfloat32_t coeff_6, svfloat32_t coeff_7, svfloat32_t coeff_8) {
-  const auto A   = svmla_f32_z(pg, coeff_1, coeff_5, x);
-  const auto B   = svmla_f32_z(pg, coeff_3, coeff_7, x);
-  const auto C   = svmla_f32_z(pg, coeff_2, coeff_6, x);
-  const auto D   = svmla_f32_z(pg, coeff_4, coeff_8, x);
-  const auto x2  = svmul_f32_z(pg, x, x);
-  const auto x4  = svmul_f32_z(pg, x2, x2);
-  const auto res = svmla_f32_z(pg, svmla_f32_z(pg, A, B, x2), svmla_f32_z(pg, C, D, x2), x4);
+inline svfloat32_t svtaylor_poly_f32_z(svbool_t pg, svfloat32_t x,
+                                       svfloat32_t coeff_1, svfloat32_t coeff_2,
+                                       svfloat32_t coeff_3, svfloat32_t coeff_4,
+                                       svfloat32_t coeff_5, svfloat32_t coeff_6,
+                                       svfloat32_t coeff_7,
+                                       svfloat32_t coeff_8) {
+  const auto A  = svmla_f32_z(pg, coeff_1, coeff_5, x);
+  const auto B  = svmla_f32_z(pg, coeff_3, coeff_7, x);
+  const auto C  = svmla_f32_z(pg, coeff_2, coeff_6, x);
+  const auto D  = svmla_f32_z(pg, coeff_4, coeff_8, x);
+  const auto x2 = svmul_f32_z(pg, x, x);
+  const auto x4 = svmul_f32_z(pg, x2, x2);
+  const auto res =
+      svmla_f32_z(pg, svmla_f32_z(pg, A, B, x2), svmla_f32_z(pg, C, D, x2), x4);
   return res;
 }
 
@@ -23,7 +27,7 @@ inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   const auto CONST_LN2     = svdup_n_f32(0.6931471805f);  // ln(2)
   const auto CONST_INV_LN2 = svdup_n_f32(1.4426950408f);  // 1/ln(2)
 
-  const auto CONST_INF          = svdup_n_f32(std::numeric_limits<float>::infinity());
+  const auto CONST_INF = svdup_n_f32(std::numeric_limits<float>::infinity());
   const auto CONST_MAX_INPUT    = svdup_n_f32(88.7f);
   const auto CONST_0            = svdup_n_f32(0.f);
   const auto CONST_NEGATIVE_126 = svdup_n_s32(-126);
@@ -43,11 +47,13 @@ inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   auto val = svmls_f32_z(pg, x, svcvt_f32_s32_z(pg, m), CONST_LN2);
 
   // Polynomial Approximation
-  auto poly = svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4, exp_tab_5, exp_tab_6, exp_tab_7,
-                                  exp_tab_8);
+  auto poly =
+      svtaylor_poly_f32_z(pg, val, exp_tab_1, exp_tab_2, exp_tab_3, exp_tab_4,
+                          exp_tab_5, exp_tab_6, exp_tab_7, exp_tab_8);
 
   // Reconstruct
-  poly = svreinterpret_f32_s32(svqadd_s32(svreinterpret_s32_f32(poly), svlsl_n_s32_z(pg, m, 23)));
+  poly = svreinterpret_f32_s32(
+      svqadd_s32(svreinterpret_s32_f32(poly), svlsl_n_s32_z(pg, m, 23)));
 
   // Handle underflow
   svbool_t ltpg = svcmplt_s32(pg, m, CONST_NEGATIVE_126);
@@ -60,7 +66,8 @@ inline svfloat32_t svexp_f32_z(svbool_t pg, svfloat32_t x) {
   return poly;
 }
 
-inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg, svfloat32_t dst, ElementWiseUnary op) {
+inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
+                                   svfloat32_t dst, ElementWiseUnary op) {
   switch (op) {
     case ElementWiseUnary::exp:
       dst = svexp_f32_z(pg, src);
@@ -77,7 +84,8 @@ inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg, svfloat32_t dst
   }
 }
 
-inline void elementwise_binary_impl(svfloat32_t src0, svfloat32_t src1, svbool_t pg, svfloat32_t dst,
+inline void elementwise_binary_impl(svfloat32_t src0, svfloat32_t src1,
+                                    svbool_t pg, svfloat32_t dst,
                                     ElementWiseBinary op) {
   switch (op) {
     case ElementWiseUnary::max:
@@ -106,7 +114,8 @@ void elementwise_unary(float* src, int len, ElementWiseuary op) {
   int sve_len       = svcntw();
 }
 
-void elementwise_binary(float* src0, float* src1, int len, ElementWiseBinary op) {
+void elementwise_binary(float* src0, float* src1, int len,
+                        ElementWiseBinary op) {
   int total_threads = omp_get_max_threads();
   int sve_len       = svcntw();
 }

@@ -41,14 +41,18 @@ typedef int         DIM_TYPE;
 typedef DIM_TYPE*   DIM_PTR;
 typedef float*      MATRIX_TYPE;
 
-void sgemm_armv8a_sve_asm_2vx8(int k0, float* alpha, float* a, float* b, float* beta, float* c, int rs_c0, int cs_c0,
+void sgemm_armv8a_sve_asm_2vx8(int k0, float* alpha, float* a, float* b,
+                               float* beta, float* c, int rs_c0, int cs_c0,
                                void* a_next, void* b_next);
 
 float* malloc_aligned(int m, int n, int size);
 
-void sgemm(const int M, const int N, const int K, const VALUE_TYPE alpha, const MATRIX_TYPE a, const int lda,
-           const MATRIX_TYPE b, const int ldb, const VALUE_TYPE beta, MATRIX_TYPE c, const int ldc);
+void sgemm(const int M, const int N, const int K, const VALUE_TYPE alpha,
+           const MATRIX_TYPE a, const int lda, const MATRIX_TYPE b,
+           const int ldb, const VALUE_TYPE beta, MATRIX_TYPE c, const int ldc);
 
-void my_dgemm_Macro(const int M, const int N, const int K, const VALUE_TYPE alpha, const MATRIX_TYPE a, const int lda,
-                    const MATRIX_TYPE b, const int ldb, const VALUE_TYPE beta, MATRIX_TYPE c, const int ldc);
+void my_dgemm_Macro(const int M, const int N, const int K,
+                    const VALUE_TYPE alpha, const MATRIX_TYPE a, const int lda,
+                    const MATRIX_TYPE b, const int ldb, const VALUE_TYPE beta,
+                    MATRIX_TYPE c, const int ldc);
 //clang-format on

@@ -3,19 +3,18 @@
 template <typename dtype>
 class Matrix {
  public:
-  Matrix()                        = delete;
-  Matrix(Matrix &other)           = delete;
-  Matrix(Matrix &&other)          = delete;
+  Matrix()               = delete;
+  Matrix(Matrix &other)  = delete;
+  Matrix(Matrix &&other) = delete;
   Matrix &operator=(Matrix other) = delete;
   ~Matrix() {
-    if (ptr)
-      delete[] ptr;
+    if (ptr) delete[] ptr;
   }
 
   Matrix(int C, int H, int W) : c(C), h(H), w(W) { ptr = new dtype[C * H * W]; }
 
   inline int size() const { return h * w * c; }
-  dtype     *get() const { return ptr; }
+  dtype *    get() const { return ptr; }
 
   inline int H() const { return h; }
   inline int W() const { return w; }
@@ -24,14 +23,20 @@ class Matrix {
   void init(int flag, dtype val) {
     switch (flag) {
       case 0:
-        for (int i = 0; i < size(); ++i) { ptr[i] = val; }
+        for (int i = 0; i < size(); ++i) {
+          ptr[i] = val;
+        }
         break;
       case 1:
-        for (int i = 0; i < size(); ++i) { ptr[i] = val++; }
+        for (int i = 0; i < size(); ++i) {
+          ptr[i] = val++;
+        }
         break;
       default: {
         static auto getVal = []() { return rand() / 1000.f; };
-        for (int i = 0; i < size(); ++i) { ptr[i] = getVal(); }
+        for (int i = 0; i < size(); ++i) {
+          ptr[i] = getVal();
+        }
       }
     }
   }

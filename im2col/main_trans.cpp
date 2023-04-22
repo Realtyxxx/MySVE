@@ -25,7 +25,8 @@ class Timer {
   inline void toc() { end_ = Clock::now(); }
 
   inline double Elapsed() {
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
     return duration.count();
   }
 
@@ -33,11 +34,13 @@ class Timer {
   Clock::time_point start_, end_;
 };
 
-void im2col(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-            int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col);
+void im2col(float *data_im, int channels, int height, int width, int kernel_h,
+            int kernel_w, int pad_h, int pad_w, int stride_h, int stride_w,
+            int dilation_h, int dilation_w, float *data_col);
 
-void im2col_neon(float *src, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-                 int stride_h, int stride_w, int dilation_h, int dilation_w, float *dst);
+void im2col_neon(float *src, int channels, int height, int width, int kernel_h,
+                 int kernel_w, int pad_h, int pad_w, int stride_h, int stride_w,
+                 int dilation_h, int dilation_w, float *dst);
 
 template <typename dtype>
 bool check_result(const Matrix<dtype> &A, const Matrix<dtype> &B) {
@@ -118,13 +121,13 @@ int main(int argc, char **argv) {
   Timer t1, t2;
 
   t1.tic();
-  im2col_neon(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up, pad.left, stride.h, stride.w, 1, 1,
-         out_image.get());
+  im2col_neon(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up,
+              pad.left, stride.h, stride.w, 1, 1, out_image.get());
   t1.toc();
 
   t2.tic();
-  im2col(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up, pad.left, stride.h, stride.w, 1, 1,
-         ref_image.get());
+  im2col(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up,
+         pad.left, stride.h, stride.w, 1, 1, ref_image.get());
   t2.toc();
 
   std::cout << "my    : " << t1.Elapsed() << std::endl;

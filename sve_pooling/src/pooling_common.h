@@ -33,17 +33,15 @@ struct PoolingConfig {
   PoolingConfig(){};
 };
 
-
 template <typename T>
 inline T roundup(const T a, const T b) {
-    T rem = a % b;
+  T rem = a % b;
 
-    if (rem) {
-        return a + b - rem;
-    } else {
-        return a;
-    }
+  if (rem) {
+    return a + b - rem;
+  } else {
+    return a;
+  }
 }
-
 
 }  // namespace pooling

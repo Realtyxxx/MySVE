@@ -28,18 +28,18 @@
 
 // define block_size
 #define MC 128
-#define NC 320
+#define NC 256
 #define KC 32
 
 #define MR 128
 #define NR 8
 #define SIMD_ALIGN_SIZE 32
 
-typedef float      VALUE_TYPE;
+typedef float       VALUE_TYPE;
 typedef VALUE_TYPE* VALUE_PTR;
 typedef int         DIM_TYPE;
 typedef DIM_TYPE*   DIM_PTR;
-typedef float* MATRIX_TYPE;
+typedef float*      MATRIX_TYPE;
 
 // clang-format off
 typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;

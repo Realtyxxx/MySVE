@@ -7,7 +7,7 @@ void sve_fp32_nhwc_max_generic_depthfirst_impl(  // TYX_NOTES: pooling op2kernel
     const uint64_t            n_valid_cells,  //
     uint64_t                  n_channels,
     const float *const *const inptrs,
-    float                    *outptr,
+    float *                   outptr,
     void *) {
   __asm__ __volatile__(
       "mov x28, #0x0\n"                      // x28 = 0

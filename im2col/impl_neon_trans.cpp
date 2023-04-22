@@ -25,7 +25,8 @@ inline void copy(unsigned int valid_len, float *out_ptr, float *in_ptr) {
   static const int vec_len2 = 8;
   static const int vec_len3 = 12;
   static const int vec_len4 = 16;
-  // printf("valid_len : %d, iter16 : %d, iter4 : %d, iter_left : %d\n", valid_len, iter16, iter4, iter_left);
+  // printf("valid_len : %d, iter16 : %d, iter4 : %d, iter_left : %d\n",
+  // valid_len, iter16, iter4, iter_left);
 
   int i;
   for (i = 0; i < iter16; ++i) {
@@ -48,14 +49,18 @@ inline void copy(unsigned int valid_len, float *out_ptr, float *in_ptr) {
 
 }  // namespace
 
-void im2col(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-            int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col) {
-  const int output_h     = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-  const int output_w     = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
+void im2col(float *data_im, int channels, int height, int width, int kernel_h,
+            int kernel_w, int pad_h, int pad_w, int stride_h, int stride_w,
+            int dilation_h, int dilation_w, float *data_col) {
+  const int output_h =
+      (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
+  const int output_w =
+      (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
   const int channel_size = height * width;
-  // std::cout << "channels" << channels << "  ih" << height << "  iw" << width << "  kh" << kernel_h << "  kw" <<
-  // kernel_w
-  //           << "  ph" << pad_h << "  pw" << pad_w << "  sh" << stride_h << "  sw" << stride_w << "  dh" << dilation_h
+  // std::cout << "channels" << channels << "  ih" << height << "  iw" << width
+  // << "  kh" << kernel_h << "  kw" << kernel_w
+  //           << "  ph" << pad_h << "  pw" << pad_w << "  sh" << stride_h << "
+  //           sw" << stride_w << "  dh" << dilation_h
   //           << "  dw" << dilation_w << '\n';
 #pragma omp parallel for num_threads(16)
   for (int channel = 0; channel < channels; ++channel) {
@@ -72,7 +77,9 @@ void im2col(float *data_im, int channels, int height, int width, int kernel_h, i
             int input_col = -pad_w + kernel_col * dilation_w;
             for (int output_col = output_w; output_col; output_col--) {
               if (is_a_ge_zero_and_a_lt_b(input_col, width)) {
-                *(data_col + datacol_off++) = *(data_im + channel_size * channel + input_row * width + input_col);
+                *(data_col + datacol_off++) =
+                    *(data_im + channel_size * channel + input_row * width +
+                      input_col);
               } else {
                 *(data_col + datacol_off++) = 0;
               }
@@ -96,15 +103,20 @@ void im2col(float *data_im, int channels, int height, int width, int kernel_h, i
  * @param kernel_hw
  * @param o_image_hw 卷积结果尺寸
  */
-void im2col_neon(float *src, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-                 int stride_h, int stride_w, int dilation_h, int dilation_w, float *dst) {
+void im2col_neon(float *src, int channels, int height, int width, int kernel_h,
+                 int kernel_w, int pad_h, int pad_w, int stride_h, int stride_w,
+                 int dilation_h, int dilation_w, float *dst) {
 
-  // void im2col(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-  //             const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
+  // void im2col(void *const src, void *const dst, const stride_args &stride,
+  // const padding_args &pad,
+  //             const image_args &image_hw, const kernel_args &kernel_hw, const
+  //             image_args &o_image_hw) {
   // stride = 1 then it could vectorize
 
-  const int output_h = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-  const int output_w = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
+  const int output_h =
+      (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
+  const int output_w =
+      (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
 
   int channel_size   = width * height;
   int o_channel_size = output_h * output_w * kernel_h * kernel_w;
@@ -114,7 +126,8 @@ void im2col_neon(float *src, int channels, int height, int width, int kernel_h, 
   // float *dst_ptr = (float *)dst;
 #pragma omp parallel for num_threads(2)
   for (int ic = 0; ic < channels; ++ic) {  // big image loop
-    // for (int ic = channels; ic--; src_ptr += channel_size, dst_ptr += o_channel_size) {  // big image loop
+    // for (int ic = channels; ic--; src_ptr += channel_size, dst_ptr +=
+    // o_channel_size) {  // big image loop
     float *src_ptr = ic * channel_size + src;
     float *dst_ptr = ic * o_channel_size + dst;
     int    kernel_total;
@@ -122,18 +135,21 @@ void im2col_neon(float *src, int channels, int height, int width, int kernel_h, 
 
     int max_threads = 8;
 // printf("omp provide %d threads\n", max_threads);
-#pragma omp parallel for num_threads(max_threads) private(kernel_row, kernel_col)
+#pragma omp parallel for num_threads(max_threads) private(kernel_row, \
+                                                          kernel_col)
     for (kernel_total = 0; kernel_total < kernel_w * kernel_h; ++kernel_total) {
       kernel_row = kernel_total / kernel_w;
       kernel_col = kernel_total % kernel_w;
       {
 
         int input_row = -pad_h + kernel_row;
-        for (int out_row = 0; out_row < output_h; ++out_row, input_row += stride_h) {
+        for (int out_row = 0; out_row < output_h;
+             ++out_row, input_row += stride_h) {
           if (input_row < 0 || input_row >= height) {
             continue;
           }
-          float *dst_offset = dst_ptr + (kernel_row * kernel_w + kernel_col) * (output_w * output_h);
+          float *dst_offset = dst_ptr + (kernel_row * kernel_w + kernel_col) *
+                                            (output_w * output_h);
           // * here could be optimized
           // #if 1
 #if 0 
@@ -151,12 +167,14 @@ void im2col_neon(float *src, int channels, int height, int width, int kernel_h, 
           int i_offset     = (kernel_col > pad_w) ? kernel_col - pad_w : 0;
           int o_offset     = (pad_w > kernel_col) ? pad_w - kernel_col : 0;
           int left_offset  = (kernel_col - pad_w >= 0 ? kernel_col - pad_w : 0);
-          int right_offset = (kernel_w - (kernel_col + 1) > pad_w ? kernel_w - (kernel_col + 1) - pad_w : 0);
+          int right_offset = (kernel_w - (kernel_col + 1) > pad_w
+                                  ? kernel_w - (kernel_col + 1) - pad_w
+                                  : 0);
 
           int valid_len = width - left_offset - right_offset;
 
-          // printf("DEBUG:valid_len : %d , kernel_col : %d , offsets  :  %d , %d\n", valid_len, kernel_col,
-          // left_offset, right_offset);
+          // printf("DEBUG:valid_len : %d , kernel_col : %d , offsets  :  %d ,
+          // %d\n", valid_len, kernel_col, left_offset, right_offset);
 
           float *out_ptr = dst_offset + out_row * output_w + o_offset;
           float *in_ptr  = src_ptr + input_row * width + i_offset;
@@ -168,13 +186,16 @@ void im2col_neon(float *src, int channels, int height, int width, int kernel_h, 
   }
 }
 
-// template void im2col<float>(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-// const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw);
+// template void im2col<float>(void *const src, void *const dst, const
+// stride_args &stride, const padding_args &pad, const image_args &image_hw,
+// const kernel_args &kernel_hw, const image_args &o_image_hw);
 
-// void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-//                 const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw) {
-//   im2col_neon(src, image_hw.ic, image_hw.h, image_hw.w, kernel_hw.h, kernel_hw.w, pad.up, pad.left, stride.h,
-//   stride.w,
+// void im2col_f32(void *const src, void *const dst, const stride_args &stride,
+// const padding_args &pad,
+//                 const image_args &image_hw, const kernel_args &kernel_hw,
+//                 const image_args &o_image_hw) {
+//   im2col_neon(src, image_hw.ic, image_hw.h, image_hw.w, kernel_hw.h,
+//   kernel_hw.w, pad.up, pad.left, stride.h, stride.w,
 //               0, 0, dst);
 // }
 // namespace template<typenamedtype>void

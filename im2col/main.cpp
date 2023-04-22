@@ -27,7 +27,8 @@ class Timer {
   inline void toc() { end_ = Clock::now(); }
 
   inline double Elapsed() {
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
     return duration.count();
   }
 
@@ -42,14 +43,19 @@ bool is_a_ge_zero_and_a_lt_b(int a, int b) {
     return false;
 }
 
-void im2col_cpu_threads(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h,
-                        int pad_w, int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col) {
-  const int output_h     = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-  const int output_w     = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
+void im2col_cpu_threads(float *data_im, int channels, int height, int width,
+                        int kernel_h, int kernel_w, int pad_h, int pad_w,
+                        int stride_h, int stride_w, int dilation_h,
+                        int dilation_w, float *data_col) {
+  const int output_h =
+      (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
+  const int output_w =
+      (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
   const int channel_size = height * width;
-  // std::cout << "channels" << channels << "  ih" << height << "  iw" << width << "  kh" << kernel_h << "  kw" <<
-  // kernel_w
-  //           << "  ph" << pad_h << "  pw" << pad_w << "  sh" << stride_h << "  sw" << stride_w << "  dh" << dilation_h
+  // std::cout << "channels" << channels << "  ih" << height << "  iw" << width
+  // << "  kh" << kernel_h << "  kw" << kernel_w
+  //           << "  ph" << pad_h << "  pw" << pad_w << "  sh" << stride_h << "
+  //           sw" << stride_w << "  dh" << dilation_h
   //           << "  dw" << dilation_w << '\n';
   int max_threads = omp_get_max_threads();
 #pragma omp parallel for num_threads(max_threads)
@@ -67,7 +73,9 @@ void im2col_cpu_threads(float *data_im, int channels, int height, int width, int
             int input_col = -pad_w + kernel_col * dilation_w;
             for (int output_col = output_w; output_col; output_col--) {
               if (is_a_ge_zero_and_a_lt_b(input_col, width)) {
-                *(data_col + datacol_off++) = *(data_im + channel_size * channel + input_row * width + input_col);
+                *(data_col + datacol_off++) =
+                    *(data_im + channel_size * channel + input_row * width +
+                      input_col);
               } else {
                 *(data_col + datacol_off++) = 0;
               }
@@ -81,10 +89,13 @@ void im2col_cpu_threads(float *data_im, int channels, int height, int width, int
   }
 }
 
-void im2col_cpu(float *data_im, int channels, int height, int width, int kernel_h, int kernel_w, int pad_h, int pad_w,
-                int stride_h, int stride_w, int dilation_h, int dilation_w, float *data_col) {
-  const int output_h     = (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-  const int output_w     = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
+void im2col_cpu(float *data_im, int channels, int height, int width,
+                int kernel_h, int kernel_w, int pad_h, int pad_w, int stride_h,
+                int stride_w, int dilation_h, int dilation_w, float *data_col) {
+  const int output_h =
+      (height + 2 * pad_h - (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
+  const int output_w =
+      (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
   const int channel_size = height * width;
   for (int channel = channels; channel--; data_im += channel_size) {
     for (int kernel_row = 0; kernel_row < kernel_h; kernel_row++) {
@@ -113,8 +124,9 @@ void im2col_cpu(float *data_im, int channels, int height, int width, int kernel_
   }
 }
 
-void im2col_f32(void *const src, void *const dst, const stride_args &stride, const padding_args &pad,
-                const image_args &image_hw, const kernel_args &kernel_hw, const image_args &o_image_hw);
+void im2col_f32(void *const src, void *const dst, const stride_args &stride,
+                const padding_args &pad, const image_args &image_hw,
+                const kernel_args &kernel_hw, const image_args &o_image_hw);
 
 template <typename dtype>
 bool check_result(const Matrix<dtype> &A, const Matrix<dtype> &B) {
@@ -126,15 +138,15 @@ bool check_result(const Matrix<dtype> &A, const Matrix<dtype> &B) {
   const dtype *const a         = A.get();
   const dtype *const b         = B.get();
   double             error_sum = 0.f;
-// #pragma omp parallel for
+  // #pragma omp parallel for
   for (int i = 0; i < A.size(); ++i) {
     if (fabs(a[i] - b[i]) > eps) {
       error++;
     }
     error_sum += fabs(a[i] - b[i]);
   }
-    std::cout << "error count : " << error << std::endl;
-    std::cout << "error sum : " << error_sum << std::endl;
+  std::cout << "error count : " << error << std::endl;
+  std::cout << "error sum : " << error_sum << std::endl;
   if (error != 0) {
     // std::cout << "error count : " << error << std::endl;
     // std::cout << "error sum : " << error_sum << std::endl;
@@ -202,8 +214,9 @@ int main(int argc, char **argv) {
   t1.toc();
 
   t2.tic();
-  im2col_cpu_threads(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w, pad.up, pad.left, stride.h, stride.w, 1,
-                     1, ref_image.get());
+  im2col_cpu_threads(image.get(), i_arg.ic, i_arg.h, i_arg.w, k_arg.h, k_arg.w,
+                     pad.up, pad.left, stride.h, stride.w, 1, 1,
+                     ref_image.get());
   t2.toc();
 
   std::cout << "my    : " << t1.Elapsed() << std::endl;

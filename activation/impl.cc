@@ -17,7 +17,8 @@ enum Activation {
   square
 };
 
-inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg, svfloat32_t dst, ElementWiseUnary op) {
+inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
+                                   svfloat32_t dst, ElementWiseUnary op) {
   switch (op) {
     case ElementWiseUnary::exp:
       dst = svexp_f32_z(pg, src);

@@ -111,7 +111,7 @@ class PoolingCommon {  //TYX_LEARNING:pooling op2kernel | kernel class
   PoolingStrategy *m_strat;
 
   // Execute pooling over the specified area of memory.
-  void execute( //最外部分只需要传入需要计算的数据位置和存回的数据位置, 线程数目和总数目
+  void execute(  //最外部分只需要传入需要计算的数据位置和存回的数据位置, 线程数目和总数目
       const void *const input,
       void *const       output,
       void *            working_space,
@@ -220,4 +220,3 @@ class PoolingCommon {  //TYX_LEARNING:pooling op2kernel | kernel class
       unsigned int      thread_id,
       unsigned int      num_threads) const;
 };
-

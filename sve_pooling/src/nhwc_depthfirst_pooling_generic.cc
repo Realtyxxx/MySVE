@@ -1,5 +1,5 @@
-#include "pooling_generic.h"
 #include "nhwc_depthfirst_kernel/nhwc_depthfirst_pooling_kernel.h"
+#include "pooling_generic.h"
 
 /* Compute a portion of the output tensor with no padding.
    *
@@ -244,7 +244,7 @@ void PoolingCommon<TInput, TOutput>::execute_internal(
                  (static_cast<int>(output_width) < end_output_j ||  //TYX_COMMENT: output right padding
                   static_cast<int>(input_width) < end_input_j))     //TYX_COMMENT: input right padding
           {                                                         //TYX_COMMENT: 除去右边padding部分，也验证了，tile是输出的个数。
-            n_unpadded_tiles--; //TYX_COMMENT: 如果为0, 也有可能会是右边部分
+            n_unpadded_tiles--;                                     //TYX_COMMENT: 如果为0, 也有可能会是右边部分
             end_output_j -= m_strat->get_output_cols();
             end_input_j -= tile_stride;
           }

@@ -18,9 +18,7 @@
 static struct timeval start;
 static struct timeval end;
 
-void tic(void) {
-  gettimeofday(&start, NULL);
-}
+void tic(void) { gettimeofday(&start, NULL); }
 
 double toc(void) {
   gettimeofday(&end, NULL);
@@ -67,8 +65,7 @@ int main(int argc, char **argv) {
     beta  = atof(argv[5]);
     P     = (bool)(atoi(argv[6]));
   }
-  printf("M == %d, N == %d, K == %d\nMC == %d, NC == %d, KC == %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, MC,
-         NC, KC, alpha, beta);
+  printf("M == %d, N == %d, K == %d\nMC == %d, NC == %d, KC == %d\nalpha == %lf, beta == %lf\n", argM, argN, argK, MC, NC, KC, alpha, beta);
   int a_length = argM * argK;
   int b_length = argK * argN;
   int c_length = argM * argN;
@@ -116,8 +113,11 @@ int main(int argc, char **argv) {
     printFloat(c, argM, argN, argM, "C  my ways:");
   }
 
-  printf("naive : %lf\n", (2.f * argM * argN * argK) / (time1 * 1e9));
-  printf("my : %lf\n", (2.f * argM * argN * argK) / (time2 * 1e9));
+  printf("naive : %lf\n", time1);
+  printf("my : %lf\n", time2);
+
+  // printf("naive : %lf\n", (2.f * argM * argN * argK) / (time1 * 1e9));
+  // printf("my : %lf\n", (2.f * argM * argN * argK) / (time2 * 1e9));
 
   printDiff(c_ref, c, argM, argN, 5, 1e-5);
 

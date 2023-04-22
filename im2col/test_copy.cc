@@ -21,7 +21,8 @@ inline void sve_copy(int valid_len, float *out_ptr, float *in_ptr) {
   // static const int vec_len3 = 3 * vec_len;
   // static const int vec_len4 = 4 * vec_len;
 
-  // printf("DEBUG: kernel_col : %d , valid_len : %d , vec_len : %d\n", kernel_col, valid_len, vec_len);
+  // printf("DEBUG: kernel_col : %d , valid_len : %d , vec_len : %d\n",
+  // kernel_col, valid_len, vec_len);
 
   svbool_t pg0 = svwhilelt_b32(x, valid_len);
   // svbool_t pg1 = svwhilelt_b32(x + vec_len, valid_len);
@@ -47,7 +48,8 @@ inline void sve_copy(int valid_len, float *out_ptr, float *in_ptr) {
   } while (svptest_any(pg0, all_true_pg));
 }
 
-// inline void neon_copy(unsigned int valid_len, float *out_ptr, float *in_ptr) {
+// inline void neon_copy(unsigned int valid_len, float *out_ptr, float *in_ptr)
+// {
 //
 //   int iter16    = valid_len / 16;
 //   int iter4     = (valid_len - iter16 * 16) / 4;
@@ -57,7 +59,8 @@ inline void sve_copy(int valid_len, float *out_ptr, float *in_ptr) {
 //   static const int vec_len2 = 8;
 //   static const int vec_len3 = 12;
 //   static const int vec_len4 = 16;
-//   // printf("valid_len : %d, iter16 : %d, iter4 : %d, iter_left : %d\n", valid_len, iter16, iter4, iter_left);
+//   // printf("valid_len : %d, iter16 : %d, iter4 : %d, iter_left : %d\n",
+//   valid_len, iter16, iter4, iter_left);
 //
 //   int i;
 //   for (i = 0; i < iter16; ++i) {
@@ -87,7 +90,8 @@ class Timer {
   inline void toc() { end_ = Clock::now(); }
 
   inline long long Elapsed() {
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
     return duration.count();
   }
 

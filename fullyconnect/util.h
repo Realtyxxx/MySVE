@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,6 +13,7 @@ void randomInit(float* data, int size) {
   long i;
   for (i = 0; i < size; ++i) {
     data[i] = (1.f * rand() / (float)RAND_MAX);
+    // data[i] = (1.f * (rand() % 100) / 10);
   }
 }
 
@@ -96,7 +98,8 @@ void printFloat(void* A, int row, int col, int lda, const char* arg) {
   printf("\n");
 }
 
-void printDiff(float* data1, float* data2, long width, long height, int iListLength, float fListTol) {
+void printDiff(float* data1, float* data2, long width, long height,
+               int iListLength, float fListTol) {
   printf("Listing first %d Differences > %.6f...\n", iListLength, fListTol);
   long i, j, k;
   int  error_count = 0;
@@ -109,7 +112,8 @@ void printDiff(float* data1, float* data2, long width, long height, int iListLen
 
       if (fDiff > fListTol) {
         if (error_count < iListLength) {
-          printf("    Loc(%d,%d)\tCPU=%.5f\tBLAS=%.5f\tDiff=%.6f\n", (int)j, (int)i, data1[k], data2[k], fDiff);
+          printf("Loc(%d,%d)\tCPU=%.5f\tBLAS=%.5f\tDiff=%.6f\n", (int)j, (int)i,
+                 data1[k], data2[k], fDiff);
         }
         error_count++;
       }

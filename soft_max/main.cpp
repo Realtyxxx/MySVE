@@ -33,7 +33,8 @@ class Timer {
   inline void toc() { end_ = Clock::now(); }
 
   inline double Elapsed() {
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_);
     return duration.count();
   }
 
@@ -48,7 +49,8 @@ void randomInit(float *data, int size) {
   }
 }
 
-void ref_softmax_f32(float *input, float *output, int workNum, int workSize, float beta) {
+void ref_softmax_f32(float *input, float *output, int workNum, int workSize,
+                     float beta) {
   float *input_data  = (float *)input;
   float *output_data = (float *)output;
 
@@ -95,7 +97,8 @@ bool check_result(const float *a, const float *b, int size) {
     err_sum += fabs(a[i] - b[i]);
   }
   if (error != 0) {
-    std::cout << "error count : " << error << "error sum : " << err_sum << std::endl;
+    std::cout << "error count : " << error << "error sum : " << err_sum
+              << std::endl;
     return false;
   } else {
     std::cout << "passed CPU SVE test" << std::endl;
