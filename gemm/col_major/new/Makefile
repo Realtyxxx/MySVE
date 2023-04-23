@@ -4,7 +4,7 @@ endif
 
 SVE_FLAGS = -msve-vector-bits=256
 GCC=${GCC_PATH}/bin/gcc
-CFLAGS= -Wall -march=armv8.2-a+sve -O2 -I./  
+CFLAGS= -g -Wall -march=armv8.2-a+sve -O2 -I./  
 # -fopenmp
 CXXFLAGS= -Wall -march=armv8.2-a+sve -O2 -I./  
 

@@ -112,11 +112,18 @@ void sgemm_Macro(const int M, const int N, const int K,
         a_next += MR * K;
       }
       int kernel_m = min(MR, M - i);
-      printf("%s, %d\n", __FILE__, kernel_m);
-      // sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K],
-      // &beta, &C(i, j), 1, ldc, a_next, b_next);
-      vl_8(kernel_m, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j),
-           1, ldc, a_next, b_next);
+      int kernel_n = min(NR, N - j);
+      if (MR == kernel_m && NR == kernel_n) {
+        sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K],
+                                  &beta, &C(i, j), 1, ldc, a_next, b_next);
+      } else if (kernel_n == NR) {
+        vl_8(kernel_m, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j),
+             1, ldc, a_next, b_next);
+      } else {
+        vl_n(kernel_m, kernel_n, K, &alpha, &packA[i * K], &packB[j * K], &beta,
+             &C(i, j), 1, ldc, a_next, b_next);
+      }
+      // printf("%s, %d\n", __FILE__, kernel_m);
     }  // 1-th loop around micro-kernel
   }    // 2-th loop around micro-kernel
 }
@@ -155,9 +162,9 @@ void sgemm(const int M, const int N, const int K,
   // int total_threads = 8;
   int total_threads = 1;
 
-  packA = malloc_aligned(KC, (MC + 1) * total_threads, sizeof(float));
+  packA = malloc_aligned(KC, MC * total_threads, sizeof(float));
   // ? FIXME: 为什么 要以 MC + 1 计算大小 得到 (mc + 1) * kc 为了多打包一份？
-  packB = malloc_aligned(KC, (NC + 1), sizeof(float));
+  packB = malloc_aligned(KC, NC, sizeof(float));
   // ? FIXME: 为什么 要以 NC + 1 计算大小 得到 (nc + 1) * kc
 
   for (jc = 0; jc < N; jc += NC) { /* iterate nc */
@@ -173,7 +180,7 @@ void sgemm(const int M, const int N, const int K,
 // TODO: here need to pack B
 #pragma omp parallel for num_threads(total_threads) private(j)
       for (j = 0; j < jb; j += NR) {
-        printf("pack B n, %d\n", min(jb - j, NR));
+        // printf("pack B n, %d\n", min(jb - j, NR));
         packB_kcxnc_d(min(jb - j, NR), pb, &b[pc], K, jc + j, &packB[j * pb]);
       }
 
@@ -184,7 +191,7 @@ void sgemm(const int M, const int N, const int K,
         ib      = min(M - ic, MC);
 
         for (i = 0; i < ib; i += MR) {
-          printf("pack A m, %d\n", min(ib - i, MR));
+          // printf("pack A m, %d\n", min(ib - i, MR));
           packA_mcxkc_d(min(ib - i, MR), pb, &a[pc * lda], M, ic + i,
                         &packA[tid * MC * pb + i * pb]);
         }

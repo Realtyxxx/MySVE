@@ -27,7 +27,7 @@
 #define C(i, j) c[(j)*ldc + (i)]  // C : m x n   ldc = m;
 
 // define block_size
-#define MC 320
+#define MC 256
 #define NC 256
 #define KC 32
 
