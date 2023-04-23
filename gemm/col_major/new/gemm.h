@@ -31,7 +31,7 @@
 #define NC 256
 #define KC 32
 
-#define MR 96
+#define MR 128
 #define NR 8
 #define SIMD_ALIGN_SIZE 32
 

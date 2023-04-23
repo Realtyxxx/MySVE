@@ -81,8 +81,8 @@ int main(int argc, char **argv) {
   // randomInit(b, b_length);
   InstantInit(a, a_length, 1.f);
   InstantInit(b, b_length, 1.f);
-  InstantInit(c, c_length, 0.f);
-  InstantInit(c_ref, c_length, 0.f);
+  InstantInit(c, c_length, 1.f);
+  InstantInit(c_ref, c_length, 1.f);
 
   /* print the  matrix before operation */
   if (P) {

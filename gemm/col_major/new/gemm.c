@@ -1,7 +1,7 @@
 #include "gemm.h"
+#include "mini_kernel.h"
 #include "omp.h"
 #include "stdlib.h"
-#include "mini_kernel.h"
 
 // clang-format off
 
@@ -111,9 +111,12 @@ void sgemm_Macro(const int M, const int N, const int K,
       } else {
         a_next += MR * K;
       }
-      // (*bl_micro_kernel)(k, &packA[i * k], &packB[j * k], &C[j * ldc + i], (unsigned long long)ldc, &aux);
-      // sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
-      vl_8(96, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j), 1, ldc, a_next, b_next);
+      int kernel_m = min(MR, M - i);
+      printf("%s, %d\n", __FILE__, kernel_m);
+      // sgemm_armv8a_sve_asm_2vx8(K, &alpha, &packA[i * K], &packB[j * K],
+      // &beta, &C(i, j), 1, ldc, a_next, b_next);
+      vl_8(kernel_m, K, &alpha, &packA[i * K], &packB[j * K], &beta, &C(i, j),
+           1, ldc, a_next, b_next);
     }  // 1-th loop around micro-kernel
   }    // 2-th loop around micro-kernel
 }
@@ -170,6 +173,7 @@ void sgemm(const int M, const int N, const int K,
 // TODO: here need to pack B
 #pragma omp parallel for num_threads(total_threads) private(j)
       for (j = 0; j < jb; j += NR) {
+        printf("pack B n, %d\n", min(jb - j, NR));
         packB_kcxnc_d(min(jb - j, NR), pb, &b[pc], K, jc + j, &packB[j * pb]);
       }
 
@@ -177,12 +181,15 @@ void sgemm(const int M, const int N, const int K,
       for (ic = 0; ic < M; ic += MC) { /* iterate mc, and A block maked */
         // int tid = omp_get_thread_num();
         int tid = 0;
-        ib = min(M - ic, MC);
+        ib      = min(M - ic, MC);
 
         for (i = 0; i < ib; i += MR) {
-          packA_mcxkc_d(min(ib - i, MR), pb, &a[pc * lda], M, ic + i, &packA[tid * MC * pb + i * pb]);
+          printf("pack A m, %d\n", min(ib - i, MR));
+          packA_mcxkc_d(min(ib - i, MR), pb, &a[pc * lda], M, ic + i,
+                        &packA[tid * MC * pb + i * pb]);
         }
-        sgemm_Macro(ib, jb, pb, alpha, packA + tid * MC * pb, lda, packB, ldb, _beta, &C(ic, jc), ldc);
+        sgemm_Macro(ib, jb, pb, alpha, packA + tid * MC * pb, lda, packB, ldb,
+                    _beta, &C(ic, jc), ldc);
       }
     }
   }
