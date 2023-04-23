@@ -4,12 +4,13 @@ endif
 
 SVE_FLAGS = -msve-vector-bits=256
 GCC=${GCC_PATH}/bin/gcc
-CFLAGS= -g -Wall -march=armv8.2-a+sve -O2 -I./  
-# -fopenmp
+
+OMP=
+# OMP+= -fopenmp -DMULTI_THREADS
+
+CFLAGS= -g -Wall -march=armv8.2-a+sve -O2 -I./   $(OMP)
 CXXFLAGS= -Wall -march=armv8.2-a+sve -O2 -I./  
 
-LDFLAGS=-fopenmp
-#  -fopenmp
 COMPILE.c=$(GCC) $(CFLAGS) -c
 
 .o:.cc
@@ -18,8 +19,7 @@ COMPILE.c=$(GCC) $(CFLAGS) -c
 
 all: main.out
 main.out : main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o
-	$(GCC) $(CFLAGS) main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o -o main.out 
-	# -fopenmp
+	$(GCC) $(CFLAGS) main.o gemm.o  util.o sgemm_sve_2vx8.o sgemm_sve_16x8.o sgemm_naive.o -o main.out  $(OMP)
 main.o : main.c
 gemm.o : gemm.c
 sgemm_sve_2vx8.o : sgemm_sve_2vx8.c
@@ -27,8 +27,7 @@ sgemm_sve_16x8.o : sgemm_sve_16x8.c
 util.o : util.c
 
 sgemm_naive.o : sgemm_naive.c
-	$(GCC) -c sgemm_naive.c -o sgemm_naive.o 
-	# -fopenmp
+	$(GCC) -c sgemm_naive.c -o sgemm_naive.o  $(OMP)
 
 .PHONY: clean
 clean:

@@ -159,8 +159,11 @@ void sgemm(const int M, const int N, const int K,
   // beta
   float _beta;
 
-  // int total_threads = 8;
+#if defined(MULTI_THREADS)
+  int total_threads = 8;
+#else
   int total_threads = 1;
+#endif
 
   packA = malloc_aligned(KC, MC * total_threads, sizeof(float));
   // ? FIXME: 为什么 要以 MC + 1 计算大小 得到 (mc + 1) * kc 为了多打包一份？
@@ -186,9 +189,12 @@ void sgemm(const int M, const int N, const int K,
 
 #pragma omp parallel for num_threads(total_threads) private(ic, ib, i)
       for (ic = 0; ic < M; ic += MC) { /* iterate mc, and A block maked */
-        // int tid = omp_get_thread_num();
+#if defined(MULTI_THREADS)
+        int tid = omp_get_thread_num();
+#else
         int tid = 0;
-        ib      = min(M - ic, MC);
+#endif
+        ib = min(M - ic, MC);
 
         for (i = 0; i < ib; i += MR) {
           // printf("pack A m, %d\n", min(ib - i, MR));
