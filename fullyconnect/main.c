@@ -126,8 +126,11 @@ int main(int argc, char** argv) {
   // printf("naive : %lf\n", (2.f * argM * argN * argK) / (time1 * 1e9));
   // printf("my : %lf\n", (2.f * argM * argN * argK) / (time2 * 1e9));
 
+  printf("diff c_ref, c2\n");
   printDiff(c_ref, c2, argM, argN, 5, 1e-3);
+  printf("diff c_ref, c\n");
   printDiff(c_ref, c, argM, argN, 5, 1e-3);
+  printf("diff c2, c\n");
   printDiff(c2, c, argM, argN, 5, 1e-3);
 
   /* free */
