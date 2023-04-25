@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
-#include "bnorm.hpp"
+#include "batch_norm_sve.hpp"
 
 class Timer {
   using Clock = std::chrono::high_resolution_clock;

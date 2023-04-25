@@ -34,36 +34,47 @@ void sve_fp32_nhwc_avg_generic_depthfirst_impl(const uint64_t window_cells,
       "ld1w { z1.s }, p3/Z, [x22, x28, LSL #2]\n"
       "ld1w { z0.s }, p3/Z, [x21, x28, LSL #2]\n"
       "ld1w { z31.s }, p3/Z, [x20, x28, LSL #2]\n"
+
       "ld1w { z30.s }, p2/Z, [x23, x27, LSL #2]\n"
       "ld1w { z22.s }, p2/Z, [x22, x27, LSL #2]\n"
       "ld1w { z29.s }, p2/Z, [x21, x27, LSL #2]\n"
       "ld1w { z28.s }, p2/Z, [x20, x27, LSL #2]\n"
+
       "ld1w { z27.s }, p1/Z, [x23, x26, LSL #2]\n"
       "ld1w { z21.s }, p1/Z, [x22, x26, LSL #2]\n"
       "ld1w { z26.s }, p1/Z, [x21, x26, LSL #2]\n"
       "ld1w { z17.s }, p1/Z, [x20, x26, LSL #2]\n"
+
       "ld1w { z25.s }, p0/Z, [x23, x25, LSL #2]\n"
       "ld1w { z20.s }, p0/Z, [x22, x25, LSL #2]\n"
       "ld1w { z24.s }, p0/Z, [x21, x25, LSL #2]\n"
       "ld1w { z16.s }, p0/Z, [x20, x25, LSL #2]\n"
+
       "beq 3f\n"
       "2:"  // 4-vectors of channels: 4 inputs loop
+      // add level 1 closed
       "fadd z23.s, z2.s, z1.s\n"
       "fadd z19.s, z0.s, z31.s\n"
       "ldp x23, x22, [x19, #0x0]\n"
       "ldp x21, x20, [x19, #0x10]\n"
+
       "fadd z22.s, z30.s, z22.s\n"
       "fadd z18.s, z29.s, z28.s\n"
       "subs x24, x24, #0x1\n"
       "add x19, x19, #0x20\n"
+
       "fadd z21.s, z27.s, z21.s\n"
       "fadd z17.s, z26.s, z17.s\n"
       "ld1w { z2.s }, p3/Z, [x23, x28, LSL #2]\n"
       "ld1w { z1.s }, p3/Z, [x22, x28, LSL #2]\n"
+
       "fadd z20.s, z25.s, z20.s\n"
       "fadd z16.s, z24.s, z16.s\n"
       "ld1w { z0.s }, p3/Z, [x21, x28, LSL #2]\n"
       "ld1w { z31.s }, p3/Z, [x20, x28, LSL #2]\n"
+
+
+
       "fadd z19.s, z23.s, z19.s\n"
       "fadd z18.s, z22.s, z18.s\n"
       "ld1w { z30.s }, p2/Z, [x23, x27, LSL #2]\n"
