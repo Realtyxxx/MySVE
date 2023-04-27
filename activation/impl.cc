@@ -1,6 +1,7 @@
 #include <arm_sve.h>
 #include <limits.h>
 #include <omp.h>
+#include <stdio.h>
 
 enum Activation {
   abs,
@@ -14,38 +15,39 @@ enum Activation {
   elu,
   sqrt,
   tanh,
-  square
+  square,
+  sigmoid
 };
 
-void leaky_relu(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+void leaky_relu_kernel(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
                 float beta) {}
 
-void relu(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+void relu_kernel(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
           float beta) {}
 
-void tanh(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+void tanh_kernel(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
           float beta) {}
 
-void sigmoid(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+void sigmoid_kernel(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
              float beta) {}
 
 inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
-                                   svfloat32_t dst, ElementWiseUnary op) {
+                                   svfloat32_t dst, Activation op) {
 
-  void(*func(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
-             float beta));
-  switch ((enum Activation) op) {
-    case Activation::sigmoid:
-      func = sigmoid;
+  void (*func)(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+               float beta) = NULL;
+  switch (op) {
+    case sigmoid:
+      func = sigmoid_kernel;
       break;
-    case Activation::relu:
-      func = relu;
+    case relu:
+      func = relu_kernel;
       break;
-    case Activation::leaky_relu:
-      dst = svneg_z(pg, src);
+    case leaky_relu:
+      func = leaky_relu_kernel;
       break;
-    case Activation::tanh:
-      dst = svabs_z(pg, src);
+    case tanh:
+      func = tanh_kernel;
       break;
     default:
       printf("unsupported");
@@ -53,4 +55,4 @@ inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
   }
 }
 
-int main(){}
+int main() {}
