@@ -17,16 +17,34 @@ enum Activation {
   square
 };
 
+void leaky_relu(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+                float beta) {}
+
+void relu(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+          float beta) {}
+
+void tanh(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+          float beta) {}
+
+void sigmoid(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+             float beta) {}
+
 inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
                                    svfloat32_t dst, ElementWiseUnary op) {
-  switch (op) {
-    case ElementWiseUnary::exp:
-      dst = svexp_f32_z(pg, src);
+
+  void(*func(svfloat32_t src, svbool_t pg, svfloat32_t dst, float alpha,
+             float beta));
+  switch ((enum Activation) op) {
+    case Activation::sigmoid:
+      func = sigmoid;
       break;
-    case ElementWiseUnary::neg:
+    case Activation::relu:
+      func = relu;
+      break;
+    case Activation::leaky_relu:
       dst = svneg_z(pg, src);
       break;
-    case ElementWiseUnary::abs:
+    case Activation::tanh:
       dst = svabs_z(pg, src);
       break;
     default:
@@ -34,3 +52,5 @@ inline void elementwise_unary_impl(svfloat32_t src, svbool_t pg,
       break;
   }
 }
+
+int main(){}
