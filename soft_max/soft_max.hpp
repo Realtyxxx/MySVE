@@ -89,11 +89,12 @@ void logits_1d_max(const float* in, float* out, int workSize) {
 template <bool is_log>
 void logits_1d_soft_max(float* in, float* exp_tmp, float* max, float* out,
                         const float beta, int workSize, int workNum) {
-  const auto all_true_pg = svptrue_b32();
+#pragma omp parallel for
   for (int i = 0; i < workNum; ++i) {
-    float* in_ptr  = in + i * workSize;
-    float* out_ptr = out + i * workSize;
-    float* max_ptr = max + i;
+    const auto all_true_pg = svptrue_b32();
+    float*     in_ptr      = in + i * workSize;
+    float*     out_ptr     = out + i * workSize;
+    float*     max_ptr     = max + i;
 
     float sum = 0;
 
@@ -157,6 +158,7 @@ template <bool is_log>
 void softmax(float* in, float* out, int workNum, int workSize, float beta) {
   float* max_tmp = malloc_aligned(workNum, 1, sizeof(float));
   float* exp_tmp = malloc_aligned(1, workSize, sizeof(float));
+#pragma omp parallel for
   for (int i = 0; i < workNum; ++i) {
     logits_1d_max(in + workSize * i, max_tmp + i, workSize);
   }
